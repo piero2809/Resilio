@@ -198,3 +198,24 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-02-10  1:24:12
+
+
+-- Create user 
+
+CREATE USER 
+'resilio'@'localhost' 
+IDENTIFIED  BY 'Resilio123$';
+
+GRANT USAGE ON *.* TO 'resilio'@'localhost';
+
+ALTER USER 'resilio'@'localhost' 
+REQUIRE NONE 
+WITH MAX_QUERIES_PER_HOUR 0 
+MAX_CONNECTIONS_PER_HOUR 0 
+MAX_UPDATES_PER_HOUR 0 
+MAX_USER_CONNECTIONS 0;
+
+GRANT ALL PRIVILEGES ON resilio.* 
+TO 'resilio'@'localhost';
+
+FLUSH PRIVILEGES;
