@@ -82,7 +82,7 @@ DROP TABLE IF EXISTS `roles`;
 CREATE TABLE `roles` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nombre` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`),   
   UNIQUE KEY `nombre` (`nombre`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -219,3 +219,13 @@ GRANT ALL PRIVILEGES ON resilio.*
 TO 'resilio'@'localhost';
 
 FLUSH PRIVILEGES;
+
+-- Modificacion en la tabla usuarios para que sea compatible con personas dentro y fuera de la empresa
+
+-- 1. Agregamos la columna empresa (puede ser NULL para usuarios libres)
+ALTER TABLE usuarios 
+ADD COLUMN empresa VARCHAR(100) DEFAULT NULL;
+
+-- 2. Agregamos la columna departamento (puede ser NULL para usuarios libres)
+ALTER TABLE usuarios 
+ADD COLUMN departamento VARCHAR(100) DEFAULT NULL;

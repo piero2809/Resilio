@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Resilio - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="dashboard-body">
+    <nav class="sidebar">
+        <div class="logo">Resilio</div>
+        <ul>
+            <li><a href="/dashboard">Inicio</a></li>
+            <li><a href="/test">Realizar Test</a></li>
+            <li><a href="/logout">Cerrar Sesión</a></li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <header class="top-bar">
+            <span>Hola, {{ session['nombre'] }}</span>
+            {% if session['nombre_empresa'] %}
+            <span class="badge">{{ session['nombre_empresa'] }} | {{ session['nombre_dept'] }}</span>
+            {% endif %}
+        </header>
+
+        <section class="dynamic-content">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+</body>
+
+</html>
