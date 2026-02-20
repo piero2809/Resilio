@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import check_password_hash
 from conexion.conexion_bbdd import obtener_conexion
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__) 
 

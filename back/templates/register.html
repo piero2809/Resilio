@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resilio | Registro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="resilio-dark-theme">
+    <div class="login-wrapper">
+        <div class="login-card" style="max-width: 500px;">
+            <header class="logo-container">
+                <img src="{{ url_for('static', filename='img/resilio-logo.png') }}" alt="Resilio Logo"
+                    class="main-logo">
+                <p class="tagline">Únete a Resilio y mide tu bienestar mental</p>
+            </header>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form action="/register" method="POST" class="login-form">
+                <div class="input-field">
+                    <label>Nombre</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="nombre" placeholder="Ej. Piero" required>
+                    </div>
+                </div>
+
+                <div class="input-field">
+                    <label>Apellidos</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-users"></i>
+                        <input type="text" name="apellidos" placeholder="Ej. Eunes Larios">
+                    </div>
+                </div>
+
+                <div class="input-field">
+                    <label>Email</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-at"></i>
+                        <input type="email" name="email" placeholder="usuario@resilio.com" required>
+                    </div>
+                </div>
+
+                <div class="input-field">
+                    <label>Contraseña</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">Crear Cuenta</button>
+
+                <div class="form-footer">
+                    <a href="/login">¿Ya tienes cuenta? Inicia sesión aquí</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

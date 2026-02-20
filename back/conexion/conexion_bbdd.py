@@ -7,7 +7,7 @@ def obtener_conexion():
             host='localhost',
             user='resilio',      
             password='Resilio123$',  
-            database='resilio'       
+            database='resilio_db'       
         )
         if conexion.is_connected():
             return conexion
