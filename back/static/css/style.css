@@ -137,3 +137,69 @@ body.resilio-dark-theme {
     font-size: 0.85rem;
     border: 1px solid var(--coral-red);
 }
+
+body {
+    /* Mantenemos tu fondo oscuro de base */
+    background: linear-gradient(-45deg, #151515, #1E1E1E, #111b21, #151515);
+    background-size: 400% 400%;
+
+    /* Esta animación hace que el degradado se mueva leeeeeentamente */
+    animation: respiracionFondo 15s ease infinite;
+
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes respiracionFondo {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* 1. INPUTS: Brillo al hacer focus */
+.login-input {
+    transition: all 0.3s ease;
+    border: 1px solid #333;
+    /* Tu borde normal */
+}
+
+.login-input:focus {
+    outline: none;
+    border-color: #50E3C2;
+    /* Tu color Menta (#50E3C2) */
+    /* Resplandor sutil para indicar que está escribiendo ahí */
+    box-shadow: 0 0 10px rgba(80, 227, 194, 0.2);
+    background-color: #1a1a1a;
+    /* Un pelín más claro al escribir */
+}
+
+/* 2. BOTÓN: Efecto líquido en el degradado */
+.login-btn {
+    /* Asumo que ya tienes tu linear-gradient(menta, rojo) */
+    background-size: 200% auto;
+    /* Hacemos el fondo el doble de ancho */
+    transition: 0.5s;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    background-position: right center;
+    /* Desplaza el degradado al pasar el ratón */
+    transform: scale(1.02);
+    /* Se hace un 2% más grande, invitando al clic */
+}
+
+.login-btn:active {
+    transform: scale(0.98);
+    /* Al hacer clic de verdad, se hunde */
+}
