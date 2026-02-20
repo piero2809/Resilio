@@ -1,5 +1,3 @@
-DROP DATABASE IF EXISTS resilio_db;
-CREATE DATABASE resilio_db;
 USE resilio_db;
 
 -- 1. Gestión de Roles

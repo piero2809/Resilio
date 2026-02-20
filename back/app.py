@@ -4,6 +4,8 @@ from conexion.conexion_bbdd import obtener_conexion
 
 app = Flask(__name__) 
 
+# ¡CRÍTICO PARA QUE FUNCIONE SESSION Y FLASH!
+app.secret_key = '123123123'
 
 @app.route('/')
 def index():
