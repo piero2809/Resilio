@@ -13,7 +13,7 @@
     <div class="login-wrapper">
         <div class="login-card" style="max-width: 500px;">
             <header class="logo-container">
-                <img src="{{ url_for('static', filename='img/resilio-logo.png') }}" alt="Resilio Logo"
+                <img src="{{ url_for('static', filename='img/resilio-logo-sinfondo.png') }}" alt="Resilio Logo"
                     class="main-logo">
                 <p class="tagline">Únete a Resilio y mide tu bienestar mental</p>
             </header>
@@ -39,7 +39,7 @@
                     <label>Apellidos</label>
                     <div class="input-icon-wrapper">
                         <i class="fas fa-users"></i>
-                        <input type="text" name="apellidos" placeholder="Ej. Eunes Larios">
+                        <input type="text" name="apellidos" placeholder="Ej. Funes Larios">
                     </div>
                 </div>
 
@@ -57,6 +57,13 @@
                         <i class="fas fa-lock"></i>
                         <input type="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8">
                     </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="color: var(--muted-text); display: block; margin-bottom: 5px;">Código de Empresa
+                        (Opcional)</label>
+                    <input type="text" name="codigo_empresa"
+                        placeholder="Ej. ACME-HR-2026 (Déjalo en blanco si eres usuario personal)"
+                        style="width: 100%; padding: 12px; background: #1c1c1c; border: 1px solid #333; color: white; border-radius: 8px;">
                 </div>
 
                 <button type="submit" class="btn-primary">Crear Cuenta</button>

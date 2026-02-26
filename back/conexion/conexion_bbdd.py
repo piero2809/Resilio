@@ -1,3 +1,4 @@
+# back/conexion/conexion_bbdd.py
 import mysql.connector
 from mysql.connector import Error
 
@@ -7,10 +8,10 @@ def obtener_conexion():
             host='localhost',
             user='resilio',      
             password='Resilio123$',  
-            database='resilio_db'       
+            database='resilio_db'     
         )
         if conexion.is_connected():
             return conexion
     except Error as e:
         print(f"Error al conectar a MySQL: {e}")
-        return None 
+        return None
