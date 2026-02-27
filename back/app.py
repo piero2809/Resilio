@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from werkzeug.security import check_password_hash
 from conexion.conexion_bbdd import obtener_conexion
 from servicios.test_service import calcular_y_guardar_bat12
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -37,7 +36,7 @@ def login():
         cursor.close()
         db.close()
 
-        # Validación Crítica
+        # Validación de la contraseña
         if usuario and check_password_hash(usuario['password'], password_candidata):
             # Guardamos todo en la sesión para que los dashboards no tengan que volver a consultar
             session['user_id'] = usuario['id']
@@ -111,7 +110,7 @@ def register():
         email = request.form['email']
         password_plana = request.form['password']
         
-        # ¡AQUÍ ESTÁ LA MAGIA QUE FALTABA! Capturamos el código
+        #Capturamos el código
         codigo_empresa = request.form.get('codigo_empresa', '').strip()
 
         # 1. Encriptamos la contraseña inmediatamente
@@ -124,7 +123,7 @@ def register():
 
         cursor = None
         try:
-            cursor = db.cursor(dictionary=True) # IMPORTANTE: dictionary=True
+            cursor = db.cursor(dictionary=True) 
             
             # 2. Verificamos si el email ya existe en la BBDD
             cursor.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
@@ -203,7 +202,6 @@ def procesar_test():
         return redirect(url_for('realizar_test'))
 
     try:
-        # ¡TODA LA MAGIA OCURRE AQUÍ EN UNA SOLA LÍNEA!
         # Pasamos el form como diccionario (request.form) para que el servicio lo lea
         exito, resultado = calcular_y_guardar_bat12(user_id, request.form, db)
 

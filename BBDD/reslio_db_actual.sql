@@ -28,7 +28,7 @@ CREATE TABLE empresas (
     codigo_registro VARCHAR(50) UNIQUE
 );
 
--- Insertamos una empresa de prueba para que puedas probar el registro
+-- Insertamos una empresa de prueba
 INSERT INTO empresas (nombre, sector, codigo_registro) 
 VALUES ('TechCorp Innovations', 'Tecnología', 'TECH-2026-VIP');
 
@@ -46,7 +46,7 @@ INSERT INTO departamentos (empresa_id, nombre) VALUES
 (1, 'Ventas y Marketing'), 
 (1, 'Recursos Humanos');
 
--- Tabla de Usuarios (Con la columna apellidos incluida)
+-- Tabla de Usuarios
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     rol_id INT NOT NULL,
