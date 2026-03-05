@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body class="resilio-dark-theme">
+<body class="auth-page">
     <div class="login-wrapper">
-        <div class="login-card" style="max-width: 500px;">
+        <div class="register-card">
             <header class="logo-container">
                 <img src="{{ url_for('static', filename='img/resilio-logo-sinfondo.png') }}" alt="Resilio Logo"
                     class="main-logo">
@@ -58,12 +58,13 @@
                         <input type="password" name="password" placeholder="Mínimo 8 caracteres" required minlength="8">
                     </div>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <label style="color: var(--muted-text); display: block; margin-bottom: 5px;">Código de Empresa
-                        (Opcional)</label>
-                    <input type="text" name="codigo_empresa"
-                        placeholder="Ej. ACME-HR-2026 (Déjalo en blanco si eres usuario personal)"
-                        style="width: 100%; padding: 12px; background: #1c1c1c; border: 1px solid #333; color: white; border-radius: 8px;">
+                <div class="input-field">
+                    <label>Código de Empresa (Opcional)</label>
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-building"></i>
+                        <input type="text" name="codigo_empresa" placeholder="Ej. ACME-HR-2026">
+                    </div>
+                    <small style="color: var(--muted-text); font-size: 0.75rem; display: block; margin-top: 6px;">Déjalo en blanco si eres usuario personal</small>
                 </div>
 
                 <button type="submit" class="btn-primary">Crear Cuenta</button>

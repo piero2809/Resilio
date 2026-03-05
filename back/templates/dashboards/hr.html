@@ -1,0 +1,180 @@
+<!--
+=================================================
+DASHBOARD HR (hr.html)
+=================================================
+
+Panel para usuarios de Recursos Humanos (rol 2).
+Muestra estadísticas agregadas del equipo/empresa.
+
+NOTA: Por ahora los datos son de ejemplo (hardcoded).
+En el futuro, estos datos vendrán de consultas SQL.
+-->
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="welcome-section" style="margin-bottom: 40px;">
+    <h1 style="color: var(--pure-white); margin-bottom: 10px; font-size: 1.8rem;">Panel de Recursos Humanos</h1>
+    <p style="color: var(--muted-text);">Estadísticas agregadas del bienestar de tu equipo.</p>
+</div>
+
+<!-- Stats: 4 tarjetas con métricas -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-users"></i>
+        </div>
+        <h3>Empleados Evaluados</h3>
+        <div class="stat-value">24</div>
+        <div class="stat-label">de 35 total</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-value">3</div>
+        <div class="stat-label">En riesgo alto</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-smile"></i>
+        </div>
+        <div class="stat-value">18</div>
+        <div class="stat-label">Bienestar OK</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-value">2.8</div>
+        <div class="stat-label">Media global</div>
+    </div>
+</div>
+
+<!-- Gráficos en dos columnas -->
+<div class="results-section">
+    <!-- Columna 1: Distribución por departamento -->
+    <div class="result-card">
+        <h2><i class="fas fa-building" style="margin-right: 10px; color: var(--neon-green);"></i>Distribución por Departamento</h2>
+        
+        <div class="dimension-bar">
+            <div class="label">
+                <span>Ingeniería</span>
+                <span>Media: 2.4</span>
+            </div>
+            <div class="progress-bg">
+                <div class="progress-fill green" style="width: 48%;"></div>
+            </div>
+        </div>
+        
+        <div class="dimension-bar">
+            <div class="label">
+                <span>Marketing</span>
+                <span>Media: 3.2</span>
+            </div>
+            <div class="progress-bg">
+                <div class="progress-fill yellow" style="width: 64%;"></div>
+            </div>
+        </div>
+        
+        <div class="dimension-bar">
+            <div class="label">
+                <span>Ventas</span>
+                <span>Media: 2.1</span>
+            </div>
+            <div class="progress-bg">
+                <div class="progress-fill green" style="width: 42%;"></div>
+            </div>
+        </div>
+        
+        <div class="dimension-bar">
+            <div class="label">
+                <span>Diseño</span>
+                <span>Media: 3.8</span>
+            </div>
+            <div class="progress-bg">
+                <div class="progress-fill red" style="width: 76%;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Columna 2: Gráfico de tendencias -->
+    <div class="result-card">
+        <h2><i class="fas fa-radar" style="margin-right: 10px; color: var(--neon-green);"></i>Tendencias</h2>
+        <canvas id="trendChart" style="max-height: 300px;"></canvas>
+    </div>
+</div>
+
+<!-- Tabla de empleados en riesgo -->
+<div class="result-card" style="margin-top: 24px;">
+    <h2><i class="fas fa-user-exclamation" style="margin-right: 10px; color: var(--coral-red);"></i>Empleados en Riesgo</h2>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+                <th style="text-align: left; padding: 12px; color: var(--muted-text); font-size: 0.8rem;">Empleado</th>
+                <th style="text-align: left; padding: 12px; color: var(--muted-text); font-size: 0.8rem;">Departamento</th>
+                <th style="text-align: left; padding: 12px; color: var(--muted-text); font-size: 0.8rem;">Última Evaluación</th>
+                <th style="text-align: left; padding: 12px; color: var(--muted-text); font-size: 0.8rem;">Nivel de Riesgo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+                <td style="padding: 14px 12px;">Carlos García</td>
+                <td style="padding: 14px 12px;">Diseño</td>
+                <td style="padding: 14px 12px;">15/02/2026</td>
+                <td style="padding: 14px 12px;"><span class="risk-level high">Alto</span></td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
+                <td style="padding: 14px 12px;">María López</td>
+                <td style="padding: 14px 12px;">Marketing</td>
+                <td style="padding: 14px 12px;">18/02/2026</td>
+                <td style="padding: 14px 12px;"><span class="risk-level medium">Medio</span></td>
+            </tr>
+            <tr>
+                <td style="padding: 14px 12px;">Pedro Sánchez</td>
+                <td style="padding: 14px 12px;">Ingeniería</td>
+                <td style="padding: 14px 12px;">20/02/2026</td>
+                <td style="padding: 14px 12px;"><span class="risk-level medium">Medio</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Gráfico de tendencia con Chart.js -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('trendChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',  // Gráfico de líneas
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Media General',
+                    data: [2.9, 3.1, 2.8, 2.6, 2.9, 2.8],
+                    borderColor: '#49f3be',
+                    backgroundColor: 'rgba(73, 243, 190, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 1,
+                        max: 5,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#888' }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#888' }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    });
+</script>
+{% endblock %}

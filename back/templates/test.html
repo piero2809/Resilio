@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<!--
+=================================================
+PÁGINA DEL TEST BAT-12 (test.html)
+=================================================
+
+Página donde el usuario responde las 12 preguntas del test.
+Esta página NO hereda de layout.html porque tiene un diseño diferente.
+
+¿CÓMO FUNCIONA?
+-----------------
+1. Flask envía una lista de 'preguntas' desde la base de datos
+2. Usamos un bucle {% for %} para mostrar cada pregunta
+3. Cada pregunta tiene 5 opciones (1-5)
+4. Al enviar, los datos van a /procesar_test
+
+DATOS QUE LLEGAN DE FLASK:
+- preguntas: lista de objetos {id, texto, dimension_id}
+-->
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resilio - Test BAT-12</title>
+    
+    <!-- CSS propio de la página de test -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <!-- Estilos específicos para esta página -->
+    <style>
+        /* Página especial para el test (fondo diferente al dashboard) */
+        body.test-page {
+            display: block;
+            background: linear-gradient(-45deg, #0a0a0a, #111111, #0f1a15, #0a0a0a);
+            background-size: 400% 400%;
+            animation: respiracionFondo 15s ease infinite;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        /* Contenedor centrado con ancho máximo */
+        .test-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Encabezado del test */
+        .test-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .test-header h1 {
+            color: var(--pure-white);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .test-header p {
+            color: var(--muted-text);
+        }
+        
+        /* Barra de progreso */
+        .progress-bar {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .progress-bar .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: var(--muted-text);
+        }
+        
+        .progress-bar .progress-track {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), #3dd9a0);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Tarjeta de cada pregunta */
+        .question-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+        }
+        
+        /* Número de pregunta */
+        .question-number {
+            display: inline-block;
+            background: var(--neon-green-dim);
+            color: var(--neon-green);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Texto de la pregunta */
+        .question-text {
+            color: var(--pure-white);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        /* Grid de opciones (5 columnas) */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+        
+        /* Cada opción (radio button oculto + círculo visible) */
+        .option-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        /* Ocultar el radio button real */
+        .option-label input {
+            display: none;
+        }
+        
+        /* Círculo que se muestra */
+        .option-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--muted-text);
+            transition: all 0.2s ease;
+        }
+        
+        /* Cuando se selecciona la opción */
+        .option-label input:checked + .option-circle {
+            background: var(--neon-green);
+            border-color: var(--neon-green);
+            color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(73, 243, 190, 0.4);
+        }
+        
+        .option-label:hover .option-circle {
+            border-color: var(--neon-green);
+        }
+        
+        /* Texto debajo del número */
+        .option-text {
+            font-size: 0.7rem;
+            color: var(--muted-text);
+            text-align: center;
+        }
+        
+        .option-label input:checked ~ .option-text {
+            color: var(--neon-green);
+        }
+        
+        /* Leyenda de la escala (Nunca - Siempre) */
+        .scale-legend {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.75rem;
+            color: var(--muted-text);
+        }
+        
+        /* Botón de enviar */
+        .btn-test {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(90deg, var(--neon-green), #3dd9a0);
+            border: none;
+            border-radius: 12px;
+            color: #0a0a0a;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+        }
+        
+        .btn-test:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(73, 243, 190, 0.3);
+        }
+        
+        /* Caja de información */
+        .info-box {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 3px solid var(--neon-green);
+        }
+        
+        .info-box h3 {
+            color: var(--pure-white);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+        
+        .info-box p {
+            color: var(--muted-text);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body class="test-page">
+    
+    <div class="test-container">
+        
+        <!-- Header con logo y título -->
+        <div class="test-header">
+            <div style="margin-bottom: 20px;">
+                <img src="{{ url_for('static', filename='img/resilio-logo-sinfondo.png') }}" 
+                     alt="Resilio" 
+                     style="width: 120px; filter: drop-shadow(0 0 20px rgba(73, 243, 190, 0.3));">
+            </div>
+            <h1>Test BAT-12</h1>
+            <p>Evaluación de Agotamiento Laboral</p>
+        </div>
+        
+        <!-- Caja de información -->
+        <div class="info-box">
+            <h3><i class="fas fa-info-circle" style="color: var(--neon-green); margin-right: 8px;"></i>¿Cómo responder?</h3>
+            <p>Responde cada pregunta pensando en <strong>cómo te has sentido en las últimas semanas</strong>. 
+            La escala va de 1 (Nunca) a 5 (Siempre). No hay respuestas correctas o incorrectas.</p>
+        </div>
+        
+        <!-- Barra de progreso -->
+        <div class="progress-bar">
+            <div class="progress-label">
+                <span>Progreso</span>
+                <!-- Se actualiza con JavaScript -->
+                <span id="progress-text">0 de {{ preguntas|length }}</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+            </div>
+        </div>
+        
+        <!-- =============================================
+             FORMULARIO DEL TEST
+             Envia las respuestas a /procesar_test
+             ============================================= -->
+        <form action="/procesar_test" method="POST" id="test-form">
+            
+            <!-- BUCLE: Repetir para cada pregunta -->
+            <!-- 'preguntas' viene de Flask (app.py) -->
+            {% for pregunta in preguntas %}
+            <div class="question-card" data-question="{{ loop.index }}">
+                
+                <!-- Número de pregunta (loop.index es el contador del for) -->
+                <span class="question-number">Pregunta {{ loop.index }} de {{ preguntas|length }}</span>
+                
+                <!-- Texto de la pregunta -->
+                <p class="question-text">{{ pregunta.texto }}</p>
+                
+                <!-- Opciones: 5 radio buttons (1-5) -->
+                <div class="options-grid">
+                    <!-- range(1, 6) genera [1, 2, 3, 4, 5] -->
+                    {% for i in range(1, 6) %}
+                    <label class="option-label">
+                        <!-- name="pregunta_{{ pregunta.id }}" genera: pregunta_1, pregunta_2, etc. -->
+                        <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ i }}" required>
+                        <span class="option-circle">{{ i }}</span>
+                        <span class="option-text">
+                            <!-- Texto según el número -->
+                            {% if i == 1 %}Nunca{% elif i == 2 %}Raras{% elif i == 3 %}A veces{% elif i == 4 %}Often{% else %}Siempre{% endif %}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+                
+                <!-- Leyenda de la escala -->
+                <div class="scale-legend">
+                    <span>Nunca</span>
+                    <span>Siempre</span>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Botón de enviar -->
+            <button type="submit" class="btn-test">
+                <i class="fas fa-check-circle"></i>
+                Enviar Respuestas
+            </button>
+        </form>
+        
+    </div>
+    
+    <!-- =============================================
+         JAVASCRIPT: Actualizar barra de progreso
+         ============================================= -->
+    <script>
+        // Obtener todas las tarjetas de preguntas
+        const questionCards = document.querySelectorAll('.question-card');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const totalQuestions = questionCards.length;
+        
+        // Función que cuenta cuántas preguntas están respondidas
+        function updateProgress() {
+            let answered = 0;
+            questionCards.forEach(card => {
+                // Buscar si hay algún radio button seleccionado en esta tarjeta
+                const inputs = card.querySelectorAll('input[type="radio"]:checked');
+                if (inputs.length > 0) answered++;
+            });
+            
+            // Calcular porcentaje
+            const percentage = (answered / totalQuestions) * 100;
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = answered + ' de ' + totalQuestions;
+        }
+        
+        // Añadir evento de cambio a cada opción
+        questionCards.forEach(card => {
+            const inputs = card.querySelectorAll('input[type="radio"]');
+            inputs.forEach(input => {
+                // Cuando el usuario marca una opción, actualizar la barra
+                input.addEventListener('change', updateProgress);
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,148 @@
+<!--
+=================================================
+DASHBOARD ADMIN (admin.html)
+=================================================
+
+Panel de administración (rol 1).
+Gestión completa del sistema: empresas, usuarios, estadísticas.
+
+NOTA: Por ahora los datos son de ejemplo (hardcoded).
+En el futuro, estos datos vendrán de consultas SQL.
+-->
+
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="welcome-section" style="margin-bottom: 40px;">
+    <h1 style="color: var(--pure-white); margin-bottom: 10px; font-size: 1.8rem;">Panel de Administración</h1>
+    <p style="color: var(--muted-text);">Gestión completa del sistema Resilio.</p>
+</div>
+
+<!-- Stats: 4 tarjetas métricas globales -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-building"></i>
+        </div>
+        <h3>Empresas Activas</h3>
+        <div class="stat-value">5</div>
+        <div class="stat-label">registradas</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-value">156</div>
+        <div class="stat-label">usuarios totales</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow">
+            <i class="fas fa-clipboard-check"></i>
+        </div>
+        <div class="stat-value">89</div>
+        <div class="stat-label">evaluaciones realizadas</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <i class="fas fa-user-shield"></i>
+        </div>
+        <div class="stat-value">3</div>
+        <div class="stat-label">administradores</div>
+    </div>
+</div>
+
+<!-- Dos columnas: Acciones rápidas + Actividad reciente -->
+<div class="results-section">
+    
+    <!-- Columna 1: Acciones rápidas -->
+    <div class="result-card">
+        <h2><i class="fas fa-cog" style="margin-right: 10px; color: var(--neon-green);"></i>Acciones Rápidas</h2>
+        
+        <div style="display: grid; gap: 15px; margin-top: 20px;">
+            <!-- Acción: Crear Empresa -->
+            <a href="#" style="display: flex; align-items: center; gap: 15px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; text-decoration: none; transition: all 0.2s;">
+                <div style="width: 45px; height: 45px; background: var(--neon-green-dim); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-plus" style="color: var(--neon-green);"></i>
+                </div>
+                <div>
+                    <div style="color: var(--pure-white); font-weight: 600;">Crear Empresa</div>
+                    <div style="color: var(--muted-text); font-size: 0.8rem;">Añadir nueva empresa al sistema</div>
+                </div>
+            </a>
+            
+            <!-- Acción: Gestionar Usuarios -->
+            <a href="#" style="display: flex; align-items: center; gap: 15px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; text-decoration: none; transition: all 0.2s;">
+                <div style="width: 45px; height: 45px; background: var(--yellow-dim); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user-plus" style="color: var(--yellow);"></i>
+                </div>
+                <div>
+                    <div style="color: var(--pure-white); font-weight: 600;">Gestionar Usuarios</div>
+                    <div style="color: var(--muted-text); font-size: 0.8rem;">Administrar cuentas y permisos</div>
+                </div>
+            </a>
+            
+            <!-- Acción: Ver Informes -->
+            <a href="#" style="display: flex; align-items: center; gap: 15px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 12px; text-decoration: none; transition: all 0.2s;">
+                <div style="width: 45px; height: 45px; background: var(--coral-red-dim); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-chart-bar" style="color: var(--coral-red);"></i>
+                </div>
+                <div>
+                    <div style="color: var(--pure-white); font-weight: 600;">Ver Informes Globales</div>
+                    <div style="color: var(--muted-text); font-size: 0.8rem;">Estadísticas completas del sistema</div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Columna 2: Actividad reciente -->
+    <div class="result-card">
+        <h2><i class="fas fa-history" style="margin-right: 10px; color: var(--neon-green);"></i>Actividad Reciente</h2>
+        
+        <div style="margin-top: 15px;">
+            <!-- Actividad 1 -->
+            <div style="display: flex; gap: 15px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle);">
+                <div style="width: 40px; height: 40px; background: var(--neon-green-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-user" style="color: var(--neon-green); font-size: 0.9rem;"></i>
+                </div>
+                <div>
+                    <div style="color: var(--pure-white); font-size: 0.9rem;">Nueva evaluación completada</div>
+                    <div style="color: var(--muted-text); font-size: 0.75rem;">Carlos García - hace 2 horas</div>
+                </div>
+            </div>
+            
+            <!-- Actividad 2 -->
+            <div style="display: flex; gap: 15px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle);">
+                <div style="width: 40px; height: 40px; background: var(--yellow-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-building" style="color: var(--yellow); font-size: 0.9rem;"></i>
+                </div>
+                <div>
+                    <div style="color: var(--pure-white); font-size: 0.9rem;">Empresa TechCorp registrada</div>
+                    <div style="color: var(--muted-text); font-size: 0.75rem;"> hace 5 horas</div>
+                </div>
+            </div>
+            
+            <!-- Actividad 3 -->
+            <div style="display: flex; gap: 15px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle);">
+                <div style="width: 40px; height: 40px; background: var(--coral-red-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-sign-in-alt" style="color: var(--coral-red); font-size: 0.9rem;"></i>
+                </div>
+                <div>
+                    <div style="color: var(--pure-white); font-size: 0.9rem;">Nuevo usuario registrado</div>
+                    <div style="color: var(--muted-text); font-size: 0.75rem;">María López - hace 8 horas</div>
+                </div>
+            </div>
+            
+            <!-- Actividad 4 -->
+            <div style="display: flex; gap: 15px; padding: 14px 0;">
+                <div style="width: 40px; height: 40px; background: var(--neon-green-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-check" style="color: var(--neon-green); font-size: 0.9rem;"></i>
+                </div>
+                <div>
+                    <div style="color: var(--pure-white); font-size: 0.9rem;">Evaluación de riesgos completada</div>
+                    <div style="color: var(--muted-text); font-size: 0.75rem;">Departamento Marketing - hace 1 día</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

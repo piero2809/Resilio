@@ -1,31 +1,107 @@
 <!DOCTYPE html>
+<!--
+=================================================
+PLANTILLA BASE (layout.html)
+=================================================
+
+Esta es la plantilla PRINCIPAL que usan todos los dashboards.
+Aquí definimos la estructura común: sidebar, menú, contenido.
+
+JINJA2 (el sistema de plantillas de Flask):
+-----------------------------------------
+- {{ variable }} → Imprime una variable de Python
+- {% if %} → Condicionales
+- {% for %} → Bucles
+- {% block content %} → Define una sección que las demás plantillas pueden sobrescribir
+- {% extends "layout.html" %} → Indica que esta plantilla hereda de layout.html
+-->
+
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- El título se define en cada página que hereda -->
     <title>Resilio - Dashboard</title>
+    
+    <!-- Nuestro archivo CSS con todos los estilos -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Font Awesome para iconos (los <i class="fas fa-..."></i>) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="dashboard-body">
+    <!-- =============================================
+         SIDEBAR (Menú lateral izquierdo)
+         ============================================= -->
     <nav class="sidebar">
+        <!-- Logo de la empresa -->
         <div class="logo">Resilio</div>
+        
+        <!-- Lista de enlaces del menú -->
         <ul>
-            <li><a href="/dashboard">Inicio</a></li>
-            <li><a href="/test">Realizar Test</a></li>
-            <li><a href="/logout">Cerrar Sesión</a></li>
+            <!-- Enlace a Inicio (dashboard) -->
+            <!-- request.path nos permite saber qué página estamos para marcar activa -->
+            <li><a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a></li>
+            
+            <!-- Enlace para hacer el test -->
+            <li><a href="/test" class="{% if request.path == '/test' %}active{% endif %}">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Realizar Test</span>
+            </a></li>
+            
+            <!-- Enlace a historial (pendiente implementar) -->
+            <li><a href="/historial">
+                <i class="fas fa-history"></i>
+                <span>Historial</span>
+            </a></li>
+            
+            <!-- Enlace a configuración -->
+            <li><a href="/configuracion">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a></li>
         </ul>
+        
+        <!-- Botón de cerrar sesión (abajo del todo) -->
+        <div style="margin-top: auto; padding: 0 30px;">
+            <a href="/logout" style="display: flex; align-items: center; gap: 12px; color: var(--coral-red); text-decoration: none; font-size: 0.9rem; font-weight: 500; padding: 14px 0;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </div>
     </nav>
 
+    <!-- =============================================
+         CONTENIDO PRINCIPAL
+         ============================================= -->
     <main class="content">
+        <!-- Barra superior con saludo y datos del usuario -->
         <header class="top-bar">
-            <span>Hola, {{ session['nombre'] }}</span>
+            <div>
+                <!-- Accedemos a la sesión para mostrar el nombre del usuario -->
+                <span style="color: var(--pure-white); font-size: 1.3rem;">
+                    Hola, <strong>{{ session['nombre'] }}</strong>
+                </span>
+            </div>
+            
+            <!-- Si el usuario pertenece a una empresa, mostrar badge -->
             {% if session['nombre_empresa'] %}
-            <span class="badge">{{ session['nombre_empresa'] }} | {{ session['nombre_dept'] }}</span>
+            <span class="badge">
+                <i class="fas fa-building" style="margin-right: 8px;"></i>
+                {{ session['nombre_empresa'] }} | {{ session['nombre_dept'] }}
+            </span>
             {% endif %}
         </header>
 
+        <!-- Aquí es donde cada dashboard pone su contenido específico -->
         <section class="dynamic-content">
             {% block content %}{% endblock %}
         </section>

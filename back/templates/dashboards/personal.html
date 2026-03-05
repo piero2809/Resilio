@@ -1,92 +1,208 @@
+<!--
+=================================================
+DASHBOARD PERSONAL (personal.html)
+=================================================
+
+Este es el dashboard para usuarios personales (rol 3).
+Hereda de layout.html y muestra los resultados del test.
+
+DATOS QUE RECIBE:
+- evaluacion: Objeto con las notas del test (o None si no ha hecho test)
+-->
+
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="dashboard-container" style="padding: 20px; max-width: 1200px; margin: 0 auto;">
-
-    <div class="welcome-section" style="margin-bottom: 40px;">
-        <h1 style="color: var(--pure-white); margin-bottom: 10px;">Tu Espacio de Bienestar</h1>
-        <p style="color: var(--muted-text);">Monitoriza tus niveles de energía y estrés laboral.</p>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
-
-        <div class="card"
-            style="background: var(--card-bg); padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
-            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <i class="fas fa-brain" style="font-size: 2rem; color: var(--neon-green); margin-right: 15px;"></i>
-                <h3 style="color: white;">Evaluación BAT-12</h3>
-            </div>
-            <p style="color: var(--muted-text); margin-bottom: 25px; line-height: 1.6;">
-                Nuestra herramienta científica de 12 preguntas te ayudará a entender tu estado de agotamiento actual.
-            </p>
-            <a href="/test" class="btn-primary"
-                style="display: inline-block; text-align: center; text-decoration: none; padding: 12px 25px; border-radius: 8px; background: var(--neon-green); color: var(--dark-bg); font-weight: bold;">
-                {% if evaluacion %} Volver a Evaluar {% else %} Comenzar Evaluación {% endif %}
-            </a>
-        </div>
-
-        <div class="card"
-            style="background: var(--card-bg); padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); grid-column: span 2;">
-            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <i class="fas fa-chart-radar" style="font-size: 2rem; color: var(--coral-red); margin-right: 15px;"></i>
-                <h3 style="color: white;">Tus Últimos Resultados</h3>
-            </div>
-
-            {% if evaluacion %}
-            <div style="display: flex; flex-wrap: wrap; gap: 30px; align-items: center;">
-                <div style="flex: 1; min-width: 300px; max-width: 400px; margin: 0 auto;">
-                    <canvas id="burnoutChart"></canvas>
-                </div>
-
-                <div style="flex: 1; min-width: 250px;">
-                    <h4 style="color: var(--muted-text); margin-bottom: 15px;">Puntuación Global (Media):
-                        <span style="color: white; font-size: 1.5rem;">{{ evaluacion.puntuacion_total }}</span> / 5
-                    </h4>
-                    <ul style="list-style: none; padding: 0; color: var(--muted-text); line-height: 2;">
-                        <li>🔴 Agotamiento: <strong style="color: white;">{{ evaluacion.dim_agotamiento }}</strong></li>
-                        <li>🟠 Distanciamiento: <strong style="color: white;">{{ evaluacion.dim_distanciamiento
-                                }}</strong></li>
-                        <li>🟡 Det. Cognitivo: <strong style="color: white;">{{ evaluacion.dim_cognitivo }}</strong>
-                        </li>
-                        <li>🔵 Det. Emocional: <strong style="color: white;">{{ evaluacion.dim_emocional }}</strong>
-                        </li>
-                    </ul>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 20px;">Última evaluación: {{
-                        evaluacion.fecha.strftime('%Y-%m-%d') }}</p>
-                </div>
-            </div>
-            {% else %}
-            <div style="text-align: center; padding: 40px 0;">
-                <i class="fas fa-clipboard-check" style="font-size: 3rem; color: #333; margin-bottom: 15px;"></i>
-                <p style="color: var(--muted-text);">Aún no has realizado ninguna evaluación.</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
+<!-- Título de bienvenida -->
+<div class="welcome-section" style="margin-bottom: 40px;">
+    <h1 style="color: var(--pure-white); margin-bottom: 10px; font-size: 1.8rem;">Tu Espacio de Bienestar</h1>
+    <p style="color: var(--muted-text);">Monitoriza tus niveles de energía y estrés laboral.</p>
 </div>
 
+<!-- SI EL USUARIO YA HIZO EL TEST: mostrar resultados -->
 {% if evaluacion %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('burnoutChart').getContext('2d');
 
-        // Inyectamos los datos de Python directamente en Javascript
+    <!-- Cuadrícula de estadísticas (tarjetas con números) -->
+    <div class="stats-grid">
+        <!-- Tarjeta: Puntuación Global -->
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h3>Puntuación Global</h3>
+            <div class="stat-value">{{ evaluacion.puntuacion_total }}</div>
+            <div class="stat-label">sobre 5</div>
+        </div>
+        
+        <!-- Tarjeta: Agotamiento -->
+        <div class="stat-card">
+            <div class="stat-icon red">
+                <i class="fas fa-fire"></i>
+            </div>
+            <div class="stat-value">{{ evaluacion.dim_agotamiento }}</div>
+            <div class="stat-label">Agotamiento</div>
+        </div>
+        
+        <!-- Tarjeta: Distanciamiento -->
+        <div class="stat-card">
+            <div class="stat-icon yellow">
+                <i class="fas fa-user-slash"></i>
+            </div>
+            <div class="stat-value">{{ evaluacion.dim_distanciamiento }}</div>
+            <div class="stat-label">Distanciamiento</div>
+        </div>
+        
+        <!-- Tarjeta: Deterioro Cognitivo -->
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="stat-value">{{ evaluacion.dim_cognitivo }}</div>
+            <div class="stat-label">Deterioro Cognitivo</div>
+        </div>
+    </div>
+
+    <!-- Sección de resultados (dos columnas) -->
+    <div class="results-section">
+        
+        <!-- Columna 1: Barras de progreso -->
+        <div class="result-card">
+            <h2><i class="fas fa-chart-pie" style="margin-right: 10px; color: var(--neon-green);"></i>Resumen de Dimensiones</h2>
+            
+            <!-- Barra: Agotamiento -->
+            <div class="dimension-bar">
+                <div class="label">
+                    <span>Agotamiento</span>
+                    <span>{{ evaluacion.dim_agotamiento }}/5</span>
+                </div>
+                <div class="progress-bg">
+                    <!-- width calcula el porcentaje: (nota/5)*100 -->
+                    <div class="progress-fill 
+                        {% if evaluacion.dim_agotamiento < 2.5 %}green
+                        {% elif evaluacion.dim_agotamiento < 3.5 %}yellow
+                        {% else %}red{% endif %}" 
+                        style="width: {{ (evaluacion.dim_agotamiento / 5 * 100) }}%;">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barra: Distanciamiento -->
+            <div class="dimension-bar">
+                <div class="label">
+                    <span>Distanciamiento</span>
+                    <span>{{ evaluacion.dim_distanciamiento }}/5</span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill 
+                        {% if evaluacion.dim_distanciamiento < 2.5 %}green
+                        {% elif evaluacion.dim_distanciamiento < 3.5 %}yellow
+                        {% else %}red{% endif %}" 
+                        style="width: {{ (evaluacion.dim_distanciamiento / 5 * 100) }}%;">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barra: Cognitivo -->
+            <div class="dimension-bar">
+                <div class="label">
+                    <span>Deterioro Cognitivo</span>
+                    <span>{{ evaluacion.dim_cognitivo }}/5</span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill 
+                        {% if evaluacion.dim_cognitivo < 2.5 %}green
+                        {% elif evaluacion.dim_cognitivo < 3.5 %}yellow
+                        {% else %}red{% endif %}" 
+                        style="width: {{ (evaluacion.dim_cognitivo / 5 * 100) }}%;">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barra: Emocional -->
+            <div class="dimension-bar">
+                <div class="label">
+                    <span>Deterioro Emocional</span>
+                    <span>{{ evaluacion.dim_emocional }}/5</span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill 
+                        {% if evaluacion.dim_emocional < 2.5 %}green
+                        {% elif evaluacion.dim_emocional < 3.5 %}yellow
+                        {% else %}red{% endif %}" 
+                        style="width: {{ (evaluacion.dim_emocional / 5 * 100) }}%;">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fecha de la evaluación -->
+            <p style="color: var(--muted-text); font-size: 0.8rem; margin-top: 20px;">
+                <i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>
+                Última evaluación: {{ evaluacion.fecha.strftime('%d/%m/%Y') }}
+            </p>
+        </div>
+        
+        <!-- Columna 2: Gráfico radar -->
+        <div class="result-card">
+            <h2><i class="fas fa-radar" style="margin-right: 10px; color: var(--neon-green);"></i>Visualización</h2>
+            <!-- Canvas donde Chart.js dibujará el gráfico -->
+            <canvas id="burnoutChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Botón para repetir el test -->
+    <div class="btn-action">
+        <a href="/test" class="btn-secondary">
+            <i class="fas fa-redo"></i>
+            Repetir Evaluación
+        </a>
+    </div>
+
+<!-- SI EL USUARIO NO HA HECHO EL TEST: mostrar botón para hacerlo -->
+{% else %}
+<div class="result-card" style="text-align: center; padding: 60px 40px;">
+    <!-- Icono centrado -->
+    <div style="width: 80px; height: 80px; background: var(--neon-green-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
+        <i class="fas fa-clipboard-check" style="font-size: 2rem; color: var(--neon-green);"></i>
+    </div>
+    <h2 style="margin-bottom: 15px;">¿Listo para evaluar tu bienestar?</h2>
+    <p style="color: var(--muted-text); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+        El test BAT-12 consta de 12 preguntas que evaluarán tu nivel de agotamiento laboral en 4 dimensiones. Solo te tomará unos minutos.
+    </p>
+    <a href="/test" class="btn-primary" style="max-width: 280px;">
+        <i class="fas fa-play" style="margin-right: 10px;"></i>
+        Comenzar Evaluación
+    </a>
+</div>
+{% endif %}
+
+<!-- =============================================
+     JAVASCRIPT: Gráfico de radar con Chart.js
+     ============================================= -->
+{% if evaluacion %}
+<script>
+    // Este código se ejecuta cuando la página termina de cargar
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        // Obtener el elemento canvas donde dibujar
+        const ctx = document.getElementById('burnoutChart').getContext('2d');
+        
+        // Convertir los valores de Flask a números de JavaScript
         const dataAgotamiento = Number("{{ evaluacion.dim_agotamiento }}");
         const dataDistanciamiento = Number("{{ evaluacion.dim_distanciamiento }}");
         const dataCognitivo = Number("{{ evaluacion.dim_cognitivo }}");
         const dataEmocional = Number("{{ evaluacion.dim_emocional }}");
 
+        // Crear el gráfico de radar
         new Chart(ctx, {
-            type: 'radar',
+            type: 'radar',  // Tipo de gráfico: radar (como una araña)
             data: {
                 labels: ['Agotamiento', 'Distanciamiento', 'Deterioro Cognitivo', 'Deterioro Emocional'],
                 datasets: [{
-                    label: 'Tu Nivel de Burnout (1 al 5)',
+                    label: 'Nivel de Burnout',
                     data: [dataAgotamiento, dataDistanciamiento, dataCognitivo, dataEmocional],
-                    backgroundColor: 'rgba(0, 255, 157, 0.2)', // var(--neon-green) transparente
-                    borderColor: '#00ff9d',
-                    pointBackgroundColor: '#ff6b6b',
+                    backgroundColor: 'rgba(73, 243, 190, 0.2)',  // Color de relleno
+                    borderColor: '#49f3be',                       // Color de la línea
+                    pointBackgroundColor: '#49f3be',
                     pointBorderColor: '#fff',
                     borderWidth: 2
                 }]
@@ -96,22 +212,14 @@
                     r: {
                         angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                         grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        pointLabels: { color: '#8892b0', font: { size: 12 } },
-                        ticks: {
-                            min: 1,
-                            max: 5,
-                            stepSize: 1,
-                            display: false
-                        }
+                        pointLabels: { color: '#888', font: { size: 12 } },
+                        ticks: { min: 0, max: 5, stepSize: 1, display: false }
                     }
                 },
-                plugins: {
-                    legend: { display: false }
-                }
+                plugins: { legend: { display: false } }
             }
         });
     });
 </script>
-
 {% endif %}
 {% endblock %}
