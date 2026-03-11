@@ -252,7 +252,7 @@ def historial():
 
         # Obtener todas las evaluaciones del usuario, ordenadas por fecha
         query = """
-            SELECT puntuacion_total, dim_agotamiento, dim_distanciamiento, 
+            SELECT id, puntuacion_total, dim_agotamiento, dim_distanciamiento, 
                    dim_cognitivo, dim_emocional, fecha 
             FROM evaluaciones 
             WHERE usuario_id = %s 
@@ -260,6 +260,38 @@ def historial():
         """
         cursor.execute(query, (user_id,))
         evaluaciones = cursor.fetchall()
+
+        # Obtener textos de preguntas (para mostrar en el historial)
+        cursor.execute(
+            "SELECT id, texto FROM preguntas WHERE es_activo = 1 ORDER BY id"
+        )
+        preguntas = {fila["id"]: fila["texto"] for fila in cursor.fetchall()}
+
+        # Para cada evaluacion, obtener las respuestas
+        for eval in evaluaciones:
+            cursor.execute(
+                """
+                SELECT pregunta_id, valor 
+                FROM respuestas_evaluacion 
+                WHERE evaluacion_id = %s
+                ORDER BY pregunta_id
+            """,
+                (eval["id"],),
+            )
+            respuestas = cursor.fetchall()
+
+            # Convertir a lista de diccionarios con texto de pregunta
+            eval["detalles"] = []
+            for resp in respuestas:
+                eval["detalles"].append(
+                    {
+                        "pregunta_id": resp["pregunta_id"],
+                        "texto": preguntas.get(
+                            resp["pregunta_id"], f"Pregunta {resp['pregunta_id']}"
+                        ),
+                        "valor": resp["valor"],
+                    }
+                )
 
     except Exception as e:
         flash(f"Error al cargar el historial: {e}", "error")

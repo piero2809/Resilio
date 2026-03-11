@@ -10,43 +10,75 @@
     <div class="history-list">
         {% for eval in evaluaciones %}
         <div class="history-card">
-            <div class="history-date">
-                <i class="fas fa-calendar-alt"></i>
-                {{ eval.fecha.strftime('%d/%m/%Y') }}
+            <div class="history-header" onclick="toggleDetails('eval-{{ loop.index }}')">
+                <div class="history-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ eval.fecha.strftime('%d/%m/%Y') }}
+                </div>
+                
+                <div class="history-score">
+                    <span class="score-label" data-i18n="puntuacionGlobal">Puntuacion Global</span>
+                    <span class="score-value">{{ eval.puntuacion_total }}/5</span>
+                </div>
+                
+                <div class="history-details">
+                    <div class="detail-item">
+                        <span class="detail-label" data-i18n="agotamiento">Agotamiento</span>
+                        <span class="detail-value">{{ eval.dim_agotamiento }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label" data-i18n="distanciamiento">Distanciamiento</span>
+                        <span class="detail-value">{{ eval.dim_distanciamiento }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label" data-i18n="deterioroCognitivo">Deterioro Cognitivo</span>
+                        <span class="detail-value">{{ eval.dim_cognitivo }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label" data-i18n="deterioroEmocional">Deterioro Emocional</span>
+                        <span class="detail-value">{{ eval.dim_emocional }}</span>
+                    </div>
+                </div>
+                
+                <div class="history-risk">
+                    {% if eval.puntuacion_total < 2.5 %}
+                        <span class="risk-badge low" data-i18n="bajoRiesgo">Bajo Riesgo</span>
+                    {% elif eval.puntuacion_total < 3.5 %}
+                        <span class="risk-badge medium" data-i18n="riesgoMedio">Riesgo Medio</span>
+                    {% else %}
+                        <span class="risk-badge high" data-i18n="riesgoAlto">Riesgo Alto</span>
+                    {% endif %}
+                </div>
+                
+                <button class="toggle-btn" id="btn-eval-{{ loop.index }}">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
             </div>
             
-            <div class="history-score">
-                <span class="score-label" data-i18n="puntuacionGlobal">Puntuacion Global</span>
-                <span class="score-value">{{ eval.puntuacion_total }}/5</span>
-            </div>
-            
-            <div class="history-details">
-                <div class="detail-item">
-                    <span class="detail-label" data-i18n="agotamiento">Agotamiento</span>
-                    <span class="detail-value">{{ eval.dim_agotamiento }}</span>
+            <div class="history-details-expandable" id="eval-{{ loop.index }}">
+                <div class="questions-grid">
+                    {% for detalle in eval.detalles %}
+                    <div class="question-item">
+                        <div class="question-number">{{ loop.index }}</div>
+                        <div class="question-content">
+                            <p class="question-text">{{ detalle.texto }}</p>
+                            <div class="answer-value">
+                                {% if detalle.valor == 1 %}
+                                    <span class="answer-badge answer-1">Nunca</span>
+                                {% elif detalle.valor == 2 %}
+                                    <span class="answer-badge answer-2">Raras</span>
+                                {% elif detalle.valor == 3 %}
+                                    <span class="answer-badge answer-3">A veces</span>
+                                {% elif detalle.valor == 4 %}
+                                    <span class="answer-badge answer-4">A veces</span>
+                                {% else %}
+                                    <span class="answer-badge answer-5">Siempre</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="detail-item">
-                    <span class="detail-label" data-i18n="distanciamiento">Distanciamiento</span>
-                    <span class="detail-value">{{ eval.dim_distanciamiento }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label" data-i18n="deterioroCognitivo">Deterioro Cognitivo</span>
-                    <span class="detail-value">{{ eval.dim_cognitivo }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label" data-i18n="deterioroEmocional">Deterioro Emocional</span>
-                    <span class="detail-value">{{ eval.dim_emocional }}</span>
-                </div>
-            </div>
-            
-            <div class="history-risk">
-                {% if eval.puntuacion_total < 2.5 %}
-                    <span class="risk-badge low" data-i18n="bajoRiesgo">Bajo Riesgo</span>
-                {% elif eval.puntuacion_total < 3.5 %}
-                    <span class="risk-badge medium" data-i18n="riesgoMedio">Riesgo Medio</span>
-                {% else %}
-                    <span class="risk-badge high" data-i18n="riesgoAlto">Riesgo Alto</span>
-                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -67,6 +99,21 @@
 </div>
 {% endif %}
 
+<script>
+    function toggleDetails(id) {
+        const details = document.getElementById(id);
+        const btn = document.getElementById('btn-' + id);
+        
+        if (details.classList.contains('open')) {
+            details.classList.remove('open');
+            btn.style.transform = 'rotate(0deg)';
+        } else {
+            details.classList.add('open');
+            btn.style.transform = 'rotate(180deg)';
+        }
+    }
+</script>
+
 <style>
     .history-list {
         display: flex;
@@ -78,11 +125,40 @@
         background: var(--card-bg);
         border: 1px solid var(--border-subtle);
         border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .history-header {
         padding: 24px;
         display: grid;
-        grid-template-columns: auto 1fr auto auto;
+        grid-template-columns: auto 1fr auto auto auto;
         gap: 24px;
         align-items: center;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    
+    .history-header:hover {
+        background: rgba(255,255,255,0.02);
+    }
+    
+    .toggle-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid var(--border-subtle);
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    
+    .toggle-btn:hover {
+        border-color: var(--neon-green);
+        color: var(--neon-green);
     }
     
     .history-date {
@@ -153,15 +229,110 @@
         color: var(--coral-red);
     }
     
-    @media (max-width: 768px) {
-        .history-card {
+    .history-details-expandable {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease, padding 0.4s ease;
+        background: rgba(0,0,0,0.2);
+        border-top: 1px solid transparent;
+    }
+    
+    .history-details-expandable.open {
+        max-height: 800px;
+        padding: 24px;
+        border-top-color: var(--border-subtle);
+    }
+    
+    .questions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+    
+    .question-item {
+        display: flex;
+        gap: 12px;
+        padding: 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+    }
+    
+    .question-number {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        background: var(--neon-green-dim);
+        color: var(--neon-green);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .question-content {
+        flex: 1;
+    }
+    
+    .question-text {
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    .answer-value {
+        display: flex;
+    }
+    
+    .answer-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 12px;
+    }
+    
+    .answer-badge.answer-1 {
+        background: var(--neon-green-dim);
+        color: var(--neon-green);
+    }
+    
+    .answer-badge.answer-2 {
+        background: rgba(73, 243, 190, 0.2);
+        color: #7ee8c3;
+    }
+    
+    .answer-badge.answer-3 {
+        background: var(--yellow-dim);
+        color: var(--yellow);
+    }
+    
+    .answer-badge.answer-4 {
+        background: rgba(255, 159, 67, 0.2);
+        color: #ff9f43;
+    }
+    
+    .answer-badge.answer-5 {
+        background: var(--coral-red-dim);
+        color: var(--coral-red);
+    }
+    
+    @media (max-width: 900px) {
+        .history-header {
             grid-template-columns: 1fr;
             text-align: center;
+            gap: 16px;
         }
         
         .history-details {
             justify-content: center;
             flex-wrap: wrap;
+        }
+        
+        .questions-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
