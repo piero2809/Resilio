@@ -234,6 +234,59 @@ def logout():
 
 
 # --------------------------------------------------------
+# RUTA DE HISTORIAL (/historial)
+# Muestra el historial de evaluaciones del usuario
+# --------------------------------------------------------
+@app.route("/historial")
+def historial():
+    # Solo usuarios logueados pueden ver el historial
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    db = obtener_conexion()
+    evaluaciones = []
+
+    try:
+        cursor = db.cursor(dictionary=True)
+
+        # Obtener todas las evaluaciones del usuario, ordenadas por fecha
+        query = """
+            SELECT puntuacion_total, dim_agotamiento, dim_distanciamiento, 
+                   dim_cognitivo, dim_emocional, fecha 
+            FROM evaluaciones 
+            WHERE usuario_id = %s 
+            ORDER BY fecha DESC
+        """
+        cursor.execute(query, (user_id,))
+        evaluaciones = cursor.fetchall()
+
+    except Exception as e:
+        flash(f"Error al cargar el historial: {e}", "error")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
+
+    return render_template("historial.html", evaluaciones=evaluaciones)
+
+
+# --------------------------------------------------------
+# RUTA DE CONFIGURACION (/configuracion)
+# Pagina de configuracion de la cuenta
+# --------------------------------------------------------
+@app.route("/configuracion")
+def configuracion():
+    # Solo usuarios logueados pueden ver la configuracion
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    return render_template("configuracion.html")
+
+
+# --------------------------------------------------------
 # RUTA DE REGISTRO (/register)
 # Permite crear una cuenta nueva
 # --------------------------------------------------------
@@ -400,6 +453,7 @@ def procesar_test():
 
     # Solo usuarios logueados
     if "user_id" not in session:
+        flash("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", "error")
         return redirect(url_for("login"))
 
     # Obtenemos el ID del usuario de la sesión
@@ -419,19 +473,23 @@ def procesar_test():
         if exito:
             # Si todo fue bien, mostrar resultado
             flash(
-                f"¡Test procesado con éxito! Tu media global de BAT-12 es: {resultado}/5",
+                f"Test procesado con éxito! Tu puntuación global es: {resultado}/5",
                 "success",
             )
-            return redirect(url_for("dashboard"))
         else:
             # Si hubo error en el procesamiento
-            flash(f"Error: {resultado}", "error")
-            return redirect(url_for("realizar_test"))
+            flash(f"Error al procesar: {resultado}", "error")
+
+    except Exception as e:
+        flash(f"Error inesperado: {str(e)}", "error")
 
     finally:
         # Cerrar conexión
         if db:
             db.close()
+
+    # Siempre redirigir al dashboard
+    return redirect(url_for("dashboard"))
 
 
 # ================================================

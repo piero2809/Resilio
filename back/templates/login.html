@@ -1,54 +1,32 @@
 <!DOCTYPE html>
-<!--
-=================================================
-PÁGINA DE LOGIN (login.html)
-=================================================
-
-Página para que los usuarios inicien sesión.
-No hereda de layout.html porque es una página standalone.
-
-ELEMENTOS PRINCIPALES:
-- Formulario con email y contraseña
-- Checkbox "Recordarme"
-- Enlaces a registro y recuperación de contraseña
--->
-
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resilio | Login</title>
-    
-    <!-- CSS y Font Awesome -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        // Aplicar tema antes de cargar
+        (function() {
+            const savedTheme = localStorage.getItem('resilio-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
 </head>
 
-<!-- Usamos la clase 'auth-page' para el fondo centrado -->
 <body class="auth-page">
-    
-    <!-- Contenedor principal del login -->
     <div class="login-wrapper">
-        
-        <!-- Tarjeta con el formulario -->
         <div class="login-card">
-            
-            <!-- Header con logo -->
             <header class="logo-container">
-                <!-- url_for genera la URL correcta para el archivo estático -->
                 <img src="{{ url_for('static', filename='img/resilio-logo-sinfondo.png') }}" 
                      alt="Resilio Logo"
                      class="main-logo">
-                <p class="tagline">Equilibrio entre mente y código</p>
+                <p class="tagline" data-i18n="tagline">Equilibrio entre mente y código</p>
             </header>
 
-            <!-- =============================================
-                 MENSAJES FLASH (errores o éxitos)
-                 Flask usa flash() para mostrar mensajes temporales
-                 ============================================= -->
             {% with messages = get_flashed_messages(with_categories=true) %}
-                <!-- Si hay mensajes, recorrerlos y mostrarlos -->
                 {% if messages %}
                     {% for category, message in messages %}
                         <div class="alert alert-{{ category }}">{{ message }}</div>
@@ -56,54 +34,97 @@ ELEMENTOS PRINCIPALES:
                 {% endif %}
             {% endwith %}
 
-            <!-- =============================================
-                 FORMULARIO DE LOGIN
-                 method="POST" significa que envía datos al servidor
-                 ============================================= -->
             <form action="/login" method="POST" class="login-form">
-                
-                <!-- Campo de Email -->
                 <div class="input-field">
-                    <label>Email Corporativo o Personal</label>
+                    <label data-i18n="emailLabel">Email Corporativo o Personal</label>
                     <div class="input-icon-wrapper">
-                        <!-- Icono de @ de Font Awesome -->
                         <i class="fas fa-at"></i>
-                        <!-- required = campo obligatorio -->
                         <input type="email" name="email" placeholder="usuario@resilio.com" required>
                     </div>
                 </div>
 
-                <!-- Campo de Contraseña -->
                 <div class="input-field">
-                    <label>Contraseña</label>
+                    <label data-i18n="passwordLabel">Contraseña</label>
                     <div class="input-icon-wrapper">
-                        <!-- Icono de huella dactilar (security) -->
                         <i class="fas fa-fingerprint"></i>
                         <input type="password" name="password" placeholder="••••••••" required>
                     </div>
                 </div>
 
-                <!-- Recordar sesión y olvidé contraseña -->
                 <div class="remember-forgot">
                     <label class="checkbox-wrapper">
                         <input type="checkbox" name="remember">
                         <span class="checkmark"></span>
-                        Recordarme
+                        <span data-i18n="recordarme">Recordarme</span>
                     </label>
-                    <a href="#" class="help-link">¿Olvidaste tu contraseña?</a>
+                    <a href="#" class="help-link" data-i18n="olvidasteContrasena">¿Olvidaste tu contraseña?</a>
                 </div>
 
-                <!-- Botón de envío -->
-                <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                <button type="submit" class="btn-primary" data-i18n="iniciarSesion">Iniciar Sesión</button>
 
-                <!-- Footer con enlace a registro -->
                 <div class="form-footer">
-                    <p>¿Aún no tienes cuenta? <a href="/register" class="register-link">Regístrate</a></p>
+                    <p><span data-i18n="noTienesCuenta">¿Aún no tienes cuenta?</span> <a href="/register" class="register-link" data-i18n="registrate">Regístrate</a></p>
                 </div>
             </form>
-            
         </div>
     </div>
+
+    <script>
+        // Sistema de traducciones
+        const translations = {
+            es: {
+                tagline: "Equilibrio entre mente y código",
+                emailLabel: "Email Corporativo o Personal",
+                passwordLabel: "Contraseña",
+                recordarme: "Recordarme",
+                olvidasteContrasena: "¿Olvidaste tu contraseña?",
+                iniciarSesion: "Iniciar Sesión",
+                noTienesCuenta: "¿Aún no tienes cuenta?",
+                registrate: "Regístrate"
+            },
+            en: {
+                tagline: "Balance between mind and code",
+                emailLabel: "Corporate or Personal Email",
+                passwordLabel: "Password",
+                recordarme: "Remember me",
+                olvidasteContrasena: "Forgot your password?",
+                iniciarSesion: "Sign In",
+                noTienesCuenta: "Don't have an account?",
+                registrate: "Sign up"
+            },
+            ca: {
+                tagline: "Equilibri entre ment i codi",
+                emailLabel: "Email Corporatiu o Personal",
+                passwordLabel: "Contrasenya",
+                recordarme: "Recorda'm",
+                olvidasteContrasena: "Has oblidat la contrasenya?",
+                iniciarSesion: "Iniciar Sessió",
+                noTienesCuenta: "Encara no tens compte?",
+                registrate: "Registra't"
+            }
+        };
+        
+        function setLanguage(lang) {
+            localStorage.setItem('resilio-language', lang);
+            applyTranslations(lang);
+        }
+        
+        function applyTranslations(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.documentElement.lang = lang;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('resilio-language') || 'es';
+            applyTranslations(savedLang);
+        });
+    </script>
 </body>
 
 </html>

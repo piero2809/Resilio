@@ -1,40 +1,23 @@
-<!--
-=================================================
-DASHBOARD PERSONAL (personal.html)
-=================================================
-
-Este es el dashboard para usuarios personales (rol 3).
-Hereda de layout.html y muestra los resultados del test.
-
-DATOS QUE RECIBE:
-- evaluacion: Objeto con las notas del test (o None si no ha hecho test)
--->
-
 {% extends "layout.html" %}
 
 {% block content %}
-<!-- Título de bienvenida -->
 <div class="welcome-section" style="margin-bottom: 40px;">
-    <h1 style="color: var(--pure-white); margin-bottom: 10px; font-size: 1.8rem;">Tu Espacio de Bienestar</h1>
-    <p style="color: var(--muted-text);">Monitoriza tus niveles de energía y estrés laboral.</p>
+    <h1 style="color: var(--text-primary); margin-bottom: 10px; font-size: 1.8rem;">Tu Espacio de Bienestar</h1>
+    <p style="color: var(--text-secondary);">Monitoriza tus niveles de energia y estres laboral.</p>
 </div>
 
-<!-- SI EL USUARIO YA HIZO EL TEST: mostrar resultados -->
 {% if evaluacion %}
 
-    <!-- Cuadrícula de estadísticas (tarjetas con números) -->
     <div class="stats-grid">
-        <!-- Tarjeta: Puntuación Global -->
         <div class="stat-card">
             <div class="stat-icon green">
                 <i class="fas fa-brain"></i>
             </div>
-            <h3>Puntuación Global</h3>
+            <h3>Puntuacion Global</h3>
             <div class="stat-value">{{ evaluacion.puntuacion_total }}</div>
             <div class="stat-label">sobre 5</div>
         </div>
         
-        <!-- Tarjeta: Agotamiento -->
         <div class="stat-card">
             <div class="stat-icon red">
                 <i class="fas fa-fire"></i>
@@ -43,7 +26,6 @@ DATOS QUE RECIBE:
             <div class="stat-label">Agotamiento</div>
         </div>
         
-        <!-- Tarjeta: Distanciamiento -->
         <div class="stat-card">
             <div class="stat-icon yellow">
                 <i class="fas fa-user-slash"></i>
@@ -52,7 +34,6 @@ DATOS QUE RECIBE:
             <div class="stat-label">Distanciamiento</div>
         </div>
         
-        <!-- Tarjeta: Deterioro Cognitivo -->
         <div class="stat-card">
             <div class="stat-icon green">
                 <i class="fas fa-lightbulb"></i>
@@ -62,21 +43,17 @@ DATOS QUE RECIBE:
         </div>
     </div>
 
-    <!-- Sección de resultados (dos columnas) -->
     <div class="results-section">
         
-        <!-- Columna 1: Barras de progreso -->
         <div class="result-card">
             <h2><i class="fas fa-chart-pie" style="margin-right: 10px; color: var(--neon-green);"></i>Resumen de Dimensiones</h2>
             
-            <!-- Barra: Agotamiento -->
             <div class="dimension-bar">
                 <div class="label">
                     <span>Agotamiento</span>
                     <span>{{ evaluacion.dim_agotamiento }}/5</span>
                 </div>
                 <div class="progress-bg">
-                    <!-- width calcula el porcentaje: (nota/5)*100 -->
                     <div class="progress-fill 
                         {% if evaluacion.dim_agotamiento < 2.5 %}green
                         {% elif evaluacion.dim_agotamiento < 3.5 %}yellow
@@ -86,7 +63,6 @@ DATOS QUE RECIBE:
                 </div>
             </div>
             
-            <!-- Barra: Distanciamiento -->
             <div class="dimension-bar">
                 <div class="label">
                     <span>Distanciamiento</span>
@@ -102,7 +78,6 @@ DATOS QUE RECIBE:
                 </div>
             </div>
             
-            <!-- Barra: Cognitivo -->
             <div class="dimension-bar">
                 <div class="label">
                     <span>Deterioro Cognitivo</span>
@@ -118,7 +93,6 @@ DATOS QUE RECIBE:
                 </div>
             </div>
             
-            <!-- Barra: Emocional -->
             <div class="dimension-bar">
                 <div class="label">
                     <span>Deterioro Emocional</span>
@@ -134,74 +108,60 @@ DATOS QUE RECIBE:
                 </div>
             </div>
             
-            <!-- Fecha de la evaluación -->
-            <p style="color: var(--muted-text); font-size: 0.8rem; margin-top: 20px;">
+            <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 20px;">
                 <i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>
-                Última evaluación: {{ evaluacion.fecha.strftime('%d/%m/%Y') }}
+                Ultima evaluacion: {{ evaluacion.fecha.strftime('%d/%m/%Y') }}
             </p>
         </div>
         
-        <!-- Columna 2: Gráfico radar -->
         <div class="result-card">
-            <h2><i class="fas fa-radar" style="margin-right: 10px; color: var(--neon-green);"></i>Visualización</h2>
-            <!-- Canvas donde Chart.js dibujará el gráfico -->
+            <h2><i class="fas fa-radar" style="margin-right: 10px; color: var(--neon-green);"></i>Visualizacion</h2>
             <canvas id="burnoutChart" style="max-height: 300px;"></canvas>
         </div>
     </div>
 
-    <!-- Botón para repetir el test -->
     <div class="btn-action">
         <a href="/test" class="btn-secondary">
             <i class="fas fa-redo"></i>
-            Repetir Evaluación
+            Repetir Evaluacion
         </a>
     </div>
 
-<!-- SI EL USUARIO NO HA HECHO EL TEST: mostrar botón para hacerlo -->
 {% else %}
 <div class="result-card" style="text-align: center; padding: 60px 40px;">
-    <!-- Icono centrado -->
     <div style="width: 80px; height: 80px; background: var(--neon-green-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
         <i class="fas fa-clipboard-check" style="font-size: 2rem; color: var(--neon-green);"></i>
     </div>
-    <h2 style="margin-bottom: 15px;">¿Listo para evaluar tu bienestar?</h2>
-    <p style="color: var(--muted-text); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
-        El test BAT-12 consta de 12 preguntas que evaluarán tu nivel de agotamiento laboral en 4 dimensiones. Solo te tomará unos minutos.
+    <h2 style="margin-bottom: 15px;">Listo para evaluar tu bienestar?</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+        El test BAT-12 consta de 12 preguntas que evaluaran tu nivel de agotamiento laboral en 4 dimensiones. Solo te tomara unos minutos.
     </p>
     <a href="/test" class="btn-primary" style="max-width: 280px;">
         <i class="fas fa-play" style="margin-right: 10px;"></i>
-        Comenzar Evaluación
+        Comenzar Evaluacion
     </a>
 </div>
 {% endif %}
 
-<!-- =============================================
-     JAVASCRIPT: Gráfico de radar con Chart.js
-     ============================================= -->
 {% if evaluacion %}
 <script>
-    // Este código se ejecuta cuando la página termina de cargar
     document.addEventListener('DOMContentLoaded', function () {
-        
-        // Obtener el elemento canvas donde dibujar
         const ctx = document.getElementById('burnoutChart').getContext('2d');
         
-        // Convertir los valores de Flask a números de JavaScript
         const dataAgotamiento = Number("{{ evaluacion.dim_agotamiento }}");
         const dataDistanciamiento = Number("{{ evaluacion.dim_distanciamiento }}");
         const dataCognitivo = Number("{{ evaluacion.dim_cognitivo }}");
         const dataEmocional = Number("{{ evaluacion.dim_emocional }}");
 
-        // Crear el gráfico de radar
         new Chart(ctx, {
-            type: 'radar',  // Tipo de gráfico: radar (como una araña)
+            type: 'radar',
             data: {
                 labels: ['Agotamiento', 'Distanciamiento', 'Deterioro Cognitivo', 'Deterioro Emocional'],
                 datasets: [{
                     label: 'Nivel de Burnout',
                     data: [dataAgotamiento, dataDistanciamiento, dataCognitivo, dataEmocional],
-                    backgroundColor: 'rgba(73, 243, 190, 0.2)',  // Color de relleno
-                    borderColor: '#49f3be',                       // Color de la línea
+                    backgroundColor: 'rgba(73, 243, 190, 0.2)',
+                    borderColor: '#49f3be',
                     pointBackgroundColor: '#49f3be',
                     pointBorderColor: '#fff',
                     borderWidth: 2

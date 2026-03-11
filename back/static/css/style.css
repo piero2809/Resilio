@@ -25,23 +25,232 @@ solo lo cambias aquí y se cambia en toda la página.
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* =============================================
-   VARIABLES DE COLOR
-   Definimos los colores principales aquí
+   VARIABLES DE COLOR - MODO OSCURO (POR DEFECTO)
    ============================================= */
-:root {
-    --dark-bg: #0d0d0d;           /* Fondo principal oscuro */
-    --card-bg: #1a1a1a;          /* Fondo de las tarjetas */
-    --card-hover: #222222;        /* Color al pasar el ratón */
-    --neon-green: #49f3be;       /* Verde neón principal */
-    --neon-green-dim: rgba(73, 243, 190, 0.15);  /* Verde transparente */
-    --coral-red: #f34949;         /* Rojo coral (para peligros) */
-    --coral-red-dim: rgba(243, 73, 73, 0.15);    /* Rojo transparente */
-    --yellow: #f3c949;            /* Amarillo (para advertencias) */
-    --yellow-dim: rgba(243, 201, 73, 0.15);     /* Amarillo transparente */
-    --pure-white: #ffffff;        /* Blanco puro */
-    --muted-text: #888888;        /* Gris para texto secundario */
-    --border-subtle: rgba(255, 255, 255, 0.08); /* Borde sutil */
-    --sidebar-width: 260px;      /* Ancho del menú lateral */
+:root, [data-theme="dark"] {
+    --bg-color: #0d0d0d;
+    --card-bg: #1a1a1a;
+    --card-hover: #222222;
+    --neon-green: #49f3be;
+    --neon-green-dim: rgba(73, 243, 190, 0.15);
+    --coral-red: #f34949;
+    --coral-red-dim: rgba(243, 73, 73, 0.15);
+    --yellow: #f3c949;
+    --yellow-dim: rgba(243, 201, 73, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --sidebar-width: 260px;
+    --input-bg: #111111;
+    --input-border: #2a2a2a;
+}
+
+/* Por defecto el body tiene el fondo oscuro */
+body, .dashboard-body {
+    background: linear-gradient(-45deg, #0a0a0a, #111111, #0f1a15, #0a0a0a) !important;
+    color: var(--text-primary);
+}
+
+/* =============================================
+   MODO CLARO
+   ============================================= */
+[data-theme="light"] {
+    --bg-color: #f5f5f7;
+    --card-bg: #ffffff;
+    --card-hover: #f0f0f0;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --input-bg: #f5f5f7;
+    --input-border: #dddddd;
+}
+
+[data-theme="light"] body, 
+[data-theme="light"] .dashboard-body {
+    background: linear-gradient(-45deg, #f0f0f2, #e8e8ea, #f5f5f7, #f0f0f2) !important;
+}
+
+[data-theme="light"] .sidebar {
+    background: var(--card-bg) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+[data-theme="light"] .logo {
+    color: var(--neon-green) !important;
+}
+
+[data-theme="light"] .sidebar ul li a {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .sidebar ul li a:hover,
+[data-theme="light"] .sidebar ul li a.active {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .top-bar {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="light"] .welcome-section h1,
+[data-theme="light"] .header-title,
+[data-theme="light"] .result-card h2,
+[data-theme="light"] .stat-card .stat-value,
+[data-theme="light"] .setting-title,
+[data-theme="light"] .stat-card h3 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .welcome-section p,
+[data-theme="light"] .stat-card .stat-label,
+[data-theme="light"] .result-card p,
+[data-theme="light"] .setting-desc,
+[data-theme="light"] .dimension-bar .label span:first-child {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] .input-icon-wrapper input {
+    background: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .input-icon-wrapper input:focus {
+    background: #ffffff !important;
+}
+
+[data-theme="light"] .input-icon-wrapper input::placeholder {
+    color: #999 !important;
+}
+
+[data-theme="light"] .progress-bg {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .Badge {
+    background: var(--neon-green-dim) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .login-card,
+[data-theme="light"] .register-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .result-card,
+[data-theme="light"] .settings-section,
+[data-theme="light"] .history-card {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="light"] .language-select {
+    background: var(--input-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Valores por defecto para el body en modo oscuro */
+body {
+    color: var(--text-color);
+    background: linear-gradient(-45deg, #0a0a0a, #111111, #0f1a15, #0a0a0a);
+}
+
+/* Modo Claro - usar :root para sobrescribir */
+:root[data-theme="light"] {
+    --dark-bg: #f5f5f7;
+    --card-bg: #ffffff;
+    --card-hover: #f0f0f0;
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --text-color: #1a1a1a;
+    --card-text: #1a1a1a;
+}
+
+:root[data-theme="light"] body,
+:root[data-theme="light"] .dashboard-body {
+    background: linear-gradient(-45deg, #f0f0f2, #e8e8ea, #f5f5f7, #f0f0f2) !important;
+}
+
+:root[data-theme="light"] .sidebar {
+    background: #ffffff !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .sidebar .logo,
+:root[data-theme="light"] .sidebar ul li a:hover,
+:root[data-theme="light"] .sidebar ul li a.active {
+    color: #1a1a1a !important;
+}
+
+:root[data-theme="light"] .sidebar ul li a {
+    color: #666666 !important;
+}
+
+:root[data-theme="light"] .top-bar {
+    border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .header-title,
+:root[data-theme="light"] .welcome-section h1,
+:root[data-theme="light"] .result-card h2,
+:root[data-theme="light"] .stat-card .stat-value,
+:root[data-theme="light"] .setting-title {
+    color: #1a1a1a !important;
+}
+
+:root[data-theme="light"] .logo {
+    color: #49f3be !important;
+}
+
+:root[data-theme="light"] .welcome-section p,
+:root[data-theme="light"] .stat-card .stat-label,
+:root[data-theme="light"] .stat-card h3,
+:root[data-theme="light"] .result-card p,
+:root[data-theme="light"] .setting-desc,
+:root[data-theme="light"] .dimension-bar .label span:first-child {
+    color: #666666 !important;
+}
+
+:root[data-theme="light"] .input-icon-wrapper input {
+    background: #f5f5f7 !important;
+    border-color: #ddd !important;
+    color: #1a1a1a !important;
+}
+
+:root[data-theme="light"] .input-icon-wrapper input:focus {
+    background: #ffffff !important;
+}
+
+:root[data-theme="light"] .input-icon-wrapper input::placeholder {
+    color: #999 !important;
+}
+
+:root[data-theme="light"] .progress-bg,
+:root[data-theme="light"] .progress-track {
+    background: rgba(0, 0, 0, 0.1) !important;
+}
+
+:root[data-theme="light"] .badge {
+    background: rgba(73, 243, 190, 0.2) !important;
+    color: #1a1a1a !important;
+}
+
+:root[data-theme="light"] .login-card,
+:root[data-theme="light"] .register-card,
+:root[data-theme="light"] .stat-card,
+:root[data-theme="light"] .result-card,
+:root[data-theme="light"] .settings-section {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .history-card {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .language-select {
+    background: #f5f5f7 !important;
+    color: #1a1a1a !important;
 }
 
 /* =============================================
@@ -62,7 +271,7 @@ body {
     background: linear-gradient(-45deg, #0a0a0a, #111111, #0f1a15, #0a0a0a);
     background-size: 400% 400%;
     animation: respiracionFondo 15s ease infinite;
-    color: var(--pure-white);
+    color: var(--text-primary);
     min-height: 100vh;  /* Minimum height = 100% del viewport */
 }
 
@@ -101,7 +310,7 @@ body.auth-page {
     max-width: 420px;          /* Ancho máximo */
     padding: 45px 40px;
     border-radius: 20px;       /* Bordes redondeados */
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-color);
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);  /* Sombra */
 }
 
@@ -120,7 +329,7 @@ body.auth-page {
 
 /* Texto debajo del logo */
 .tagline {
-    color: var(--muted-text);
+    color: var(--text-secondary);
     font-size: 0.85rem;
     letter-spacing: 0.5px;
     font-weight: 400;
@@ -138,7 +347,7 @@ body.auth-page {
 .input-field label {
     display: block;
     font-size: 0.75rem;
-    color: var(--muted-text);
+    color: var(--text-secondary);
     margin-bottom: 10px;
     text-transform: uppercase;
     font-weight: 600;
@@ -202,7 +411,7 @@ body.auth-page {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: var(--muted-text);
+    color: var(--text-secondary);
     cursor: pointer;
 }
 
@@ -212,7 +421,7 @@ body.auth-page {
 }
 
 .help-link {
-    color: var(--muted-text);
+    color: var(--text-secondary);
     text-decoration: none;
     transition: color 0.3s;
 }
@@ -311,7 +520,7 @@ body.auth-page {
     margin-top: 28px;
     text-align: center;
     font-size: 0.85rem;
-    color: var(--muted-text);
+    color: var(--text-secondary);
 }
 
 .form-footer a {
@@ -342,7 +551,7 @@ body.auth-page {
 .sidebar {
     width: var(--sidebar-width);
     background: var(--card-bg);
-    border-right: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--border-color);
     padding: 30px 0;
     display: flex;
     flex-direction: column;
@@ -373,7 +582,7 @@ body.auth-page {
     align-items: center;
     gap: 12px;
     padding: 14px 30px;
-    color: var(--muted-text);
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
@@ -383,7 +592,7 @@ body.auth-page {
 
 .sidebar ul li a:hover,
 .sidebar ul li a.active {
-    color: var(--pure-white);
+    color: var(--text-primary);
     background: rgba(255, 255, 255, 0.03);
     border-left-color: var(--neon-green);  /* Borde verde cuando activo */
 }
@@ -407,7 +616,7 @@ body.auth-page {
     align-items: center;
     margin-bottom: 40px;
     padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .top-bar span {
@@ -452,7 +661,7 @@ body.auth-page {
 
 .stat-card {
     background: var(--card-bg);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 28px;
     transition: all 0.3s ease;
@@ -493,7 +702,7 @@ body.auth-page {
 
 .stat-card h3 {
     font-size: 0.75rem;
-    color: var(--muted-text);
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
@@ -503,12 +712,12 @@ body.auth-page {
 .stat-card .stat-value {
     font-size: 2.2rem;
     font-weight: 700;
-    color: var(--pure-white);
+    color: var(--text-primary);
 }
 
 .stat-card .stat-label {
     font-size: 0.8rem;
-    color: var(--muted-text);
+    color: var(--text-secondary);
     margin-top: 4px;
 }
 
@@ -525,7 +734,7 @@ body.auth-page {
 
 .result-card {
     background: var(--card-bg);
-    border: 1px solid var(--border-subtle);
+    border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 28px;
 }
@@ -534,7 +743,7 @@ body.auth-page {
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 24px;
-    color: var(--pure-white);
+    color: var(--text-primary);
 }
 
 
@@ -554,7 +763,7 @@ body.auth-page {
 }
 
 .dimension-bar .label span:first-child {
-    color: var(--muted-text);
+    color: var(--text-secondary);
 }
 
 .dimension-bar .label span:last-child {
@@ -615,7 +824,7 @@ body.auth-page {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: var(--muted-text);
+    color: var(--text-secondary);
 }
 
 

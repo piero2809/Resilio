@@ -1,0 +1,431 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="welcome-section" style="margin-bottom: 40px;">
+    <h1 data-i18n="configuracion">Configuracion</h1>
+    <p data-i18n="configDesc">Personaliza tu experiencia en Resilio.</p>
+</div>
+
+<div class="settings-container">
+    <div class="settings-section">
+        <h2><i class="fas fa-palette" style="margin-right: 12px; color: var(--neon-green);"></i><span data-i18n="apariencia">Apariencia</span></h2>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-title" data-i18n="temaColor">Tema de color</span>
+                <span class="setting-desc" data-i18n="temaDesc">Elige entre modo oscuro o claro</span>
+            </div>
+            <div class="theme-switcher">
+                <button class="theme-btn active" data-theme="dark" onclick="setTheme('dark')">
+                    <i class="fas fa-moon"></i> <span data-i18n="oscuro">Oscuro</span>
+                </button>
+                <button class="theme-btn" data-theme="light" onclick="setTheme('light')">
+                    <i class="fas fa-sun"></i> <span data-i18n="claro">Claro</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="settings-section">
+        <h2><i class="fas fa-globe" style="margin-right: 12px; color: var(--neon-green);"></i><span data-i18n="idioma">Idioma</span></h2>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-title" data-i18n="idiomaInterfaz">Idioma de la interfaz</span>
+                <span class="setting-desc" data-i18n="idiomaDesc">Selecciona el idioma preferido</span>
+            </div>
+            <select class="language-select" id="language-select" onchange="updateLanguage(this.value)">
+                <option value="es">Espanol</option>
+                <option value="en">English</option>
+                <option value="ca">Catala</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="settings-section">
+        <h2><i class="fas fa-user" style="margin-right: 12px; color: var(--neon-green);"></i><span data-i18n="cuenta">Cuenta</span></h2>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-title" data-i18n="nombre">Nombre</span>
+                <span class="setting-desc">{{ session['nombre'] }}</span>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-title">Email</span>
+                <span class="setting-desc">{{ session.get('email', 'No disponible') }}</span>
+            </div>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-title" data-i18n="tipoCuenta">Tipo de cuenta</span>
+                <span class="setting-desc">
+                    {% if session['rol'] == 1 %}<span data-i18n="admin">Administrador</span>{% elif session['rol'] == 2 %}<span data-i18n="rrhh">Recursos Humanos</span>{% elif session['rol'] == 3 %}<span data-i18n="usuarioPersonal">Usuario Personal</span>{% else %}<span data-i18n="empleado">Empleado</span>{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="settings-section">
+        <h2><i class="fas fa-bell" style="margin-right: 12px; color: var(--neon-green);"></i><span data-i18n="notificaciones">Notificaciones</span></h2>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-title" data-i18n="recordatorios">Recordatorios de evaluacion</span>
+                <span class="setting-desc" data-i18n="recordatoriosDesc">Recibe recordatorios para evaluar tu bienestar</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" checked>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-title" data-i18n="notifEmail">Notificaciones por email</span>
+                <span class="setting-desc" data-i18n="notifEmailDesc">Recibe actualizaciones sobre tu progreso</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+    </div>
+    
+    <div class="settings-section danger">
+        <h2><i class="fas fa-exclamation-triangle" style="margin-right: 12px; color: var(--coral-red);"></i><span data-i18n="zonaPeligrosa">Zona Peligrosa</span></h2>
+        
+        <div class="setting-item">
+            <div class="setting-info">
+                <span class="setting-title" data-i18n="eliminarCuenta">Eliminar cuenta</span>
+                <span class="setting-desc" data-i18n="eliminarCuentaDesc">Elimina permanentemente tu cuenta y todos tus datos</span>
+            </div>
+            <button class="btn-danger"><span data-i18n="eliminar">Eliminar Cuenta</span></button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .settings-container {
+        max-width: 800px;
+    }
+    
+    .settings-section {
+        background: var(--card-bg);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .settings-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+    }
+    
+    .settings-section.danger {
+        border-color: var(--coral-red-dim);
+    }
+    
+    .settings-section.danger h2 {
+        color: var(--coral-red);
+    }
+    
+    .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    
+    .setting-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .setting-item:first-of-type {
+        padding-top: 0;
+    }
+    
+    .setting-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .setting-title {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .setting-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+    
+    .theme-switcher {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .theme-btn {
+        padding: 10px 20px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 10px;
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .theme-btn:hover {
+        border-color: var(--neon-green);
+        color: var(--text-primary);
+    }
+    
+    .theme-btn.active {
+        background: var(--neon-green);
+        color: #0a0a0a;
+        border-color: var(--neon-green);
+    }
+    
+    .language-select {
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border-subtle);
+        background: var(--dark-bg);
+        color: var(--text-primary);
+        cursor: pointer;
+        min-width: 150px;
+    }
+    
+    .language-select:focus {
+        outline: none;
+        border-color: var(--neon-green);
+    }
+    
+    .toggle {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
+    
+    .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #333;
+        transition: 0.4s;
+        border-radius: 34px;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+    
+    .toggle input:checked + .toggle-slider {
+        background-color: var(--neon-green);
+    }
+    
+    .toggle input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+    
+    .btn-danger {
+        padding: 10px 20px;
+        border: 1px solid var(--coral-red);
+        border-radius: 10px;
+        background: transparent;
+        color: var(--coral-red);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-danger:hover {
+        background: var(--coral-red);
+        color: white;
+    }
+</style>
+
+<script>
+    // Sistema de traducciones completo
+    const translations = {
+        es: {
+            configuracion: "Configuracion",
+            configDesc: "Personaliza tu experiencia en Resilio.",
+            apariencia: "Apariencia",
+            temaColor: "Tema de color",
+            temaDesc: "Elige entre modo oscuro o claro",
+            oscuro: "Oscuro",
+            claro: "Claro",
+            idioma: "Idioma",
+            idiomaInterfaz: "Idioma de la interfaz",
+            idiomaDesc: "Selecciona el idioma preferido",
+            cuenta: "Cuenta",
+            nombre: "Nombre",
+            tipoCuenta: "Tipo de cuenta",
+            admin: "Administrador",
+            rrhh: "Recursos Humanos",
+            usuarioPersonal: "Usuario Personal",
+            empleado: "Empleado",
+            notificaciones: "Notificaciones",
+            recordatorios: "Recordatorios de evaluacion",
+            recordatoriosDesc: "Recibe recordatorios para evaluar tu bienestar",
+            notifEmail: "Notificaciones por email",
+            notifEmailDesc: "Recibe actualizaciones sobre tu progreso",
+            zonaPeligrosa: "Zona Peligrosa",
+            eliminarCuenta: "Eliminar cuenta",
+            eliminarCuentaDesc: "Elimina permanentemente tu cuenta y todos tus datos",
+            eliminar: "Eliminar Cuenta",
+            inicio: "Inicio",
+            realizarTest: "Realizar Test",
+            historial: "Historial",
+            cerrarSesion: "Cerrar Sesion",
+            hola: "Hola"
+        },
+        en: {
+            configuracion: "Settings",
+            configDesc: "Customize your Resilio experience.",
+            apariencia: "Appearance",
+            temaColor: "Color theme",
+            temaDesc: "Choose between dark or light mode",
+            oscuro: "Dark",
+            claro: "Light",
+            idioma: "Language",
+            idiomaInterfaz: "Interface language",
+            idiomaDesc: "Select your preferred language",
+            cuenta: "Account",
+            nombre: "Name",
+            tipoCuenta: "Account type",
+            admin: "Administrator",
+            rrhh: "Human Resources",
+            usuarioPersonal: "Personal User",
+            empleado: "Employee",
+            notificaciones: "Notifications",
+            recordatorios: "Evaluation reminders",
+            recordatoriosDesc: "Receive reminders to evaluate your well-being",
+            notifEmail: "Email notifications",
+            notifEmailDesc: "Receive updates about your progress",
+            zonaPeligrosa: "Danger Zone",
+            eliminarCuenta: "Delete account",
+            eliminarCuentaDesc: "Permanently delete your account and all your data",
+            eliminar: "Delete Account",
+            inicio: "Home",
+            realizarTest: "Take Test",
+            historial: "History",
+            cerrarSesion: "Logout",
+            hola: "Hello"
+        },
+        ca: {
+            configuracio: "Configuracio",
+            configDesc: "Personalitza la teva experiencia a Resilio.",
+            apariencia: "Aparencia",
+            temaColor: "Tema de color",
+            temaDesc: "Tria entre mode fosc o clar",
+            obscur: "Fosc",
+            clar: "Clar",
+            idioma: "Idioma",
+            idiomaInterfaz: "Idioma de la interfície",
+            idiomaDesc: "Selecciona l'idioma preferit",
+            compte: "Compte",
+            nom: "Nom",
+            tipusCompte: "Tipus de compte",
+            admin: "Administrador",
+            rrhh: "Recursos Humans",
+            usuarioPersonal: "Usuari Personal",
+            empleat: "Empleat",
+            notificacions: "Notificacions",
+            recordatoris: "Recordatoris d'avaluacio",
+            recordatorisDesc: "Rep recordatoris per avaluar el teu benestar",
+            notifEmail: "Notificacions per email",
+            notifEmailDesc: "Rep actualitzacions sobre el teu progrés",
+            zonaPerillosa: "Zona Perillosa",
+            eliminarCompte: "Eliminar compte",
+            eliminarCompteDesc: "Elimina permanentment el teu compte i totes les teves dades",
+            eliminar: "Eliminar Compte",
+            inici: "Inici",
+            ferTest: "Fer Test",
+            historial: "Historial",
+            tancarSessio: "Tancar Sessio",
+            hola: "Hola"
+        }
+    };
+    
+    // Aplicar traducciones
+    function applyTranslations(lang) {
+        const elements = document.querySelectorAll('[data-i18n]');
+        elements.forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[lang] && translations[lang][key]) {
+                el.textContent = translations[lang][key];
+            }
+        });
+        
+        // Actualizar idioma del HTML
+        document.documentElement.lang = lang;
+        
+        // Guardar preferencia
+        localStorage.setItem('resilio-language', lang);
+    }
+    
+    // Funcion para cambiar tema
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('resilio-theme', theme);
+        
+        // Actualizar botones
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.theme === theme) {
+                btn.classList.add('active');
+            }
+        });
+    }
+    
+    // Funcion para cambiar idioma
+    function updateLanguage(lang) {
+        applyTranslations(lang);
+        
+        // Recargar la pagina para aplicar traducciones en otras paginas
+        // Opcional: podrias usar AJAX para traducir sin recargar
+    }
+    
+    // Inicializar al cargar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar tema
+        const savedTheme = localStorage.getItem('resilio-theme') || 'dark';
+        setTheme(savedTheme);
+        
+        // Cargar idioma
+        const savedLang = localStorage.getItem('resilio-language') || 'es';
+        document.getElementById('language-select').value = savedLang;
+        applyTranslations(savedLang);
+    });
+</script>
+{% endblock %}

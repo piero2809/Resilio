@@ -1,0 +1,168 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="welcome-section" style="margin-bottom: 40px;">
+    <h1 style="color: var(--text-primary); margin-bottom: 10px; font-size: 1.8rem;" data-i18n="historialEvaluaciones">Historial de Evaluaciones</h1>
+    <p style="color: var(--text-secondary);" data-i18n="historialDescripcion">Revisa tus evaluaciones anteriores y su evolucion.</p>
+</div>
+
+{% if evaluaciones %}
+    <div class="history-list">
+        {% for eval in evaluaciones %}
+        <div class="history-card">
+            <div class="history-date">
+                <i class="fas fa-calendar-alt"></i>
+                {{ eval.fecha.strftime('%d/%m/%Y') }}
+            </div>
+            
+            <div class="history-score">
+                <span class="score-label" data-i18n="puntuacionGlobal">Puntuacion Global</span>
+                <span class="score-value">{{ eval.puntuacion_total }}/5</span>
+            </div>
+            
+            <div class="history-details">
+                <div class="detail-item">
+                    <span class="detail-label" data-i18n="agotamiento">Agotamiento</span>
+                    <span class="detail-value">{{ eval.dim_agotamiento }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" data-i18n="distanciamiento">Distanciamiento</span>
+                    <span class="detail-value">{{ eval.dim_distanciamiento }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" data-i18n="deterioroCognitivo">Deterioro Cognitivo</span>
+                    <span class="detail-value">{{ eval.dim_cognitivo }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label" data-i18n="deterioroEmocional">Deterioro Emocional</span>
+                    <span class="detail-value">{{ eval.dim_emocional }}</span>
+                </div>
+            </div>
+            
+            <div class="history-risk">
+                {% if eval.puntuacion_total < 2.5 %}
+                    <span class="risk-badge low" data-i18n="bajoRiesgo">Bajo Riesgo</span>
+                {% elif eval.puntuacion_total < 3.5 %}
+                    <span class="risk-badge medium" data-i18n="riesgoMedio">Riesgo Medio</span>
+                {% else %}
+                    <span class="risk-badge high" data-i18n="riesgoAlto">Riesgo Alto</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+<div class="result-card" style="text-align: center; padding: 60px 40px;">
+    <div style="width: 80px; height: 80px; background: var(--neon-green-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
+        <i class="fas fa-history" style="font-size: 2rem; color: var(--neon-green);"></i>
+    </div>
+    <h2 data-i18n="noEvaluaciones">No tienes evaluaciones anteriores</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;" data-i18n="realizaPrimeraEvaluacion">
+        Realiza tu primera evaluacion para comenzar a hacer seguimiento de tu bienestar laboral.
+    </p>
+    <a href="/test" class="btn-primary" style="max-width: 280px;">
+        <i class="fas fa-play" style="margin-right: 10px;"></i>
+        <span data-i18n="realizarPrimeraEvaluacion">Realizar Primera Evaluacion</span>
+    </a>
+</div>
+{% endif %}
+
+<style>
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .history-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 24px;
+        display: grid;
+        grid-template-columns: auto 1fr auto auto;
+        gap: 24px;
+        align-items: center;
+    }
+    
+    .history-date {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .history-score {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .history-score .score-label {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+    }
+    
+    .history-score .score-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .history-details {
+        display: flex;
+        gap: 20px;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .detail-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+    }
+    
+    .detail-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .risk-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .risk-badge.low {
+        background: var(--neon-green-dim);
+        color: var(--neon-green);
+    }
+    
+    .risk-badge.medium {
+        background: var(--yellow-dim);
+        color: var(--yellow);
+    }
+    
+    .risk-badge.high {
+        background: var(--coral-red-dim);
+        color: var(--coral-red);
+    }
+    
+    @media (max-width: 768px) {
+        .history-card {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        
+        .history-details {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}

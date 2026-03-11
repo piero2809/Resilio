@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="welcome-section" style="margin-bottom: 40px;">
-    <h1 style="color: var(--pure-white); margin-bottom: 10px; font-size: 1.8rem;">Tu Panel de Empleado</h1>
-    <p style="color: var(--muted-text);">Consulta tu estado de burnout y bienestar laboral.</p>
+    <h1 style="color: var(--text-primary); margin-bottom: 10px; font-size: 1.8rem;">Tu Panel de Empleado</h1>
+    <p style="color: var(--text-secondary);">Consulta tu estado de burnout y bienestar laboral.</p>
 </div>
 
 {% if evaluacion %}
@@ -83,7 +83,7 @@
             </div>
         </div>
         
-        <p style="color: var(--muted-text); font-size: 0.8rem; margin-top: 20px;">
+        <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 20px;">
             <i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>
             Última evaluación: {{ evaluacion.fecha.strftime('%d/%m/%Y') }}
         </p>
@@ -108,7 +108,7 @@
         <i class="fas fa-clipboard-check" style="font-size: 2rem; color: var(--neon-green);"></i>
     </div>
     <h2 style="margin-bottom: 15px;">¿Listo para evaluar tu bienestar?</h2>
-    <p style="color: var(--muted-text); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+    <p style="color: var(--text-secondary); margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
         El test BAT-12 evaluará tu nivel de agotamiento laboral. Tus resultados son confidenciales y solo tú puedes verlos.
     </p>
     <a href="/test" class="btn-primary" style="max-width: 280px;">

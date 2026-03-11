@@ -1,69 +1,55 @@
 <!DOCTYPE html>
-<!--
-=================================================
-PÁGINA DEL TEST BAT-12 (test.html)
-=================================================
-
-Página donde el usuario responde las 12 preguntas del test.
-Esta página NO hereda de layout.html porque tiene un diseño diferente.
-
-¿CÓMO FUNCIONA?
------------------
-1. Flask envía una lista de 'preguntas' desde la base de datos
-2. Usamos un bucle {% for %} para mostrar cada pregunta
-3. Cada pregunta tiene 5 opciones (1-5)
-4. Al enviar, los datos van a /procesar_test
-
-DATOS QUE LLEGAN DE FLASK:
-- preguntas: lista de objetos {id, texto, dimension_id}
--->
-
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resilio - Test BAT-12</title>
-    
-    <!-- CSS propio de la página de test -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    
-    <!-- Estilos específicos para esta página -->
+    <script>
+        // Aplicar tema antes de cargar
+        (function() {
+            const savedTheme = localStorage.getItem('resilio-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
     <style>
-        /* Página especial para el test (fondo diferente al dashboard) */
         body.test-page {
             display: block;
+            background: var(--bg-color, #0d0d0d);
             background: linear-gradient(-45deg, #0a0a0a, #111111, #0f1a15, #0a0a0a);
             background-size: 400% 400%;
             animation: respiracionFondo 15s ease infinite;
             min-height: 100vh;
             padding: 40px 20px;
+            color: var(--text-primary);
         }
         
-        /* Contenedor centrado con ancho máximo */
+        html[data-theme="light"] body.test-page {
+            background: linear-gradient(-45deg, #f0f0f2, #e8e8ea, #f5f5f7, #f0f0f2) !important;
+        }
+        
         .test-container {
             max-width: 700px;
             margin: 0 auto;
         }
         
-        /* Encabezado del test */
         .test-header {
             text-align: center;
             margin-bottom: 40px;
         }
         
         .test-header h1 {
-            color: var(--pure-white);
+            color: var(--text-primary);
             font-size: 2rem;
             margin-bottom: 10px;
         }
         
         .test-header p {
-            color: var(--muted-text);
+            color: var(--text-secondary);
         }
         
-        /* Barra de progreso */
         .progress-bar {
             background: var(--card-bg);
             border-radius: 10px;
@@ -77,7 +63,7 @@ DATOS QUE LLEGAN DE FLASK:
             justify-content: space-between;
             margin-bottom: 10px;
             font-size: 0.85rem;
-            color: var(--muted-text);
+            color: var(--text-secondary);
         }
         
         .progress-bar .progress-track {
@@ -94,7 +80,6 @@ DATOS QUE LLEGAN DE FLASK:
             transition: width 0.3s ease;
         }
         
-        /* Tarjeta de cada pregunta */
         .question-card {
             background: var(--card-bg);
             border: 1px solid var(--border-subtle);
@@ -103,7 +88,6 @@ DATOS QUE LLEGAN DE FLASK:
             margin-bottom: 24px;
         }
         
-        /* Número de pregunta */
         .question-number {
             display: inline-block;
             background: var(--neon-green-dim);
@@ -117,23 +101,20 @@ DATOS QUE LLEGAN DE FLASK:
             letter-spacing: 0.5px;
         }
         
-        /* Texto de la pregunta */
         .question-text {
-            color: var(--pure-white);
+            color: var(--text-primary);
             font-size: 1.1rem;
             font-weight: 500;
             margin-bottom: 25px;
             line-height: 1.5;
         }
         
-        /* Grid de opciones (5 columnas) */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 12px;
         }
         
-        /* Cada opción (radio button oculto + círculo visible) */
         .option-label {
             display: flex;
             flex-direction: column;
@@ -142,12 +123,10 @@ DATOS QUE LLEGAN DE FLASK:
             cursor: pointer;
         }
         
-        /* Ocultar el radio button real */
         .option-label input {
             display: none;
         }
         
-        /* Círculo que se muestra */
         .option-circle {
             width: 50px;
             height: 50px;
@@ -159,11 +138,10 @@ DATOS QUE LLEGAN DE FLASK:
             justify-content: center;
             font-weight: 700;
             font-size: 1rem;
-            color: var(--muted-text);
+            color: var(--text-secondary);
             transition: all 0.2s ease;
         }
         
-        /* Cuando se selecciona la opción */
         .option-label input:checked + .option-circle {
             background: var(--neon-green);
             border-color: var(--neon-green);
@@ -175,10 +153,9 @@ DATOS QUE LLEGAN DE FLASK:
             border-color: var(--neon-green);
         }
         
-        /* Texto debajo del número */
         .option-text {
             font-size: 0.7rem;
-            color: var(--muted-text);
+            color: var(--text-secondary);
             text-align: center;
         }
         
@@ -186,16 +163,14 @@ DATOS QUE LLEGAN DE FLASK:
             color: var(--neon-green);
         }
         
-        /* Leyenda de la escala (Nunca - Siempre) */
         .scale-legend {
             display: flex;
             justify-content: space-between;
             margin-top: 15px;
             font-size: 0.75rem;
-            color: var(--muted-text);
+            color: var(--text-secondary);
         }
         
-        /* Botón de enviar */
         .btn-test {
             display: flex;
             align-items: center;
@@ -221,7 +196,6 @@ DATOS QUE LLEGAN DE FLASK:
             box-shadow: 0 10px 30px rgba(73, 243, 190, 0.3);
         }
         
-        /* Caja de información */
         .info-box {
             background: rgba(255,255,255,0.03);
             border-radius: 12px;
@@ -231,13 +205,13 @@ DATOS QUE LLEGAN DE FLASK:
         }
         
         .info-box h3 {
-            color: var(--pure-white);
+            color: var(--text-primary);
             font-size: 0.95rem;
             margin-bottom: 8px;
         }
         
         .info-box p {
-            color: var(--muted-text);
+            color: var(--text-secondary);
             font-size: 0.85rem;
             line-height: 1.5;
         }
@@ -248,29 +222,25 @@ DATOS QUE LLEGAN DE FLASK:
     
     <div class="test-container">
         
-        <!-- Header con logo y título -->
         <div class="test-header">
             <div style="margin-bottom: 20px;">
                 <img src="{{ url_for('static', filename='img/resilio-logo-sinfondo.png') }}" 
                      alt="Resilio" 
                      style="width: 120px; filter: drop-shadow(0 0 20px rgba(73, 243, 190, 0.3));">
             </div>
-            <h1>Test BAT-12</h1>
-            <p>Evaluación de Agotamiento Laboral</p>
+            <h1 data-i18n="testBat12">Test BAT-12</h1>
+            <p data-i18n="evaluacionAgotamiento">Evaluación de Agotamiento Laboral</p>
         </div>
         
-        <!-- Caja de información -->
         <div class="info-box">
-            <h3><i class="fas fa-info-circle" style="color: var(--neon-green); margin-right: 8px;"></i>¿Cómo responder?</h3>
-            <p>Responde cada pregunta pensando en <strong>cómo te has sentido en las últimas semanas</strong>. 
+            <h3><i class="fas fa-info-circle" style="color: var(--neon-green); margin-right: 8px;"></i><span data-i18n="comoResponder">Como responder?</span></h3>
+            <p data-i18n="instruccionesTest">Responde cada pregunta pensando en <strong>como te has sentido en las ultimas semanas</strong>. 
             La escala va de 1 (Nunca) a 5 (Siempre). No hay respuestas correctas o incorrectas.</p>
         </div>
         
-        <!-- Barra de progreso -->
         <div class="progress-bar">
             <div class="progress-label">
-                <span>Progreso</span>
-                <!-- Se actualiza con JavaScript -->
+                <span data-i18n="progreso">Progreso</span>
                 <span id="progress-text">0 de {{ preguntas|length }}</span>
             </div>
             <div class="progress-track">
@@ -278,86 +248,152 @@ DATOS QUE LLEGAN DE FLASK:
             </div>
         </div>
         
-        <!-- =============================================
-             FORMULARIO DEL TEST
-             Envia las respuestas a /procesar_test
-             ============================================= -->
-        <form action="/procesar_test" method="POST" id="test-form">
+        <form action="/procesar_test" method="POST" id="test-form" onsubmit="this.querySelector('button').innerHTML='Enviando...'; this.querySelector('button').disabled=true;">
             
-            <!-- BUCLE: Repetir para cada pregunta -->
-            <!-- 'preguntas' viene de Flask (app.py) -->
             {% for pregunta in preguntas %}
             <div class="question-card" data-question="{{ loop.index }}">
                 
-                <!-- Número de pregunta (loop.index es el contador del for) -->
-                <span class="question-number">Pregunta {{ loop.index }} de {{ preguntas|length }}</span>
+                <span class="question-number" data-i18n="pregunta">Pregunta</span> {{ loop.index }} <span data-i18n="de">de</span> {{ preguntas|length }}
                 
-                <!-- Texto de la pregunta -->
                 <p class="question-text">{{ pregunta.texto }}</p>
                 
-                <!-- Opciones: 5 radio buttons (1-5) -->
                 <div class="options-grid">
-                    <!-- range(1, 6) genera [1, 2, 3, 4, 5] -->
                     {% for i in range(1, 6) %}
                     <label class="option-label">
-                        <!-- name="pregunta_{{ pregunta.id }}" genera: pregunta_1, pregunta_2, etc. -->
                         <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ i }}" required>
                         <span class="option-circle">{{ i }}</span>
                         <span class="option-text">
-                            <!-- Texto según el número -->
                             {% if i == 1 %}Nunca{% elif i == 2 %}Raras{% elif i == 3 %}A veces{% elif i == 4 %}Often{% else %}Siempre{% endif %}
                         </span>
                     </label>
                     {% endfor %}
                 </div>
                 
-                <!-- Leyenda de la escala -->
                 <div class="scale-legend">
-                    <span>Nunca</span>
-                    <span>Siempre</span>
+                    <span data-i18n="nunca">Nunca</span>
+                    <span data-i18n="siempre">Siempre</span>
                 </div>
             </div>
             {% endfor %}
             
-            <!-- Botón de enviar -->
             <button type="submit" class="btn-test">
                 <i class="fas fa-check-circle"></i>
-                Enviar Respuestas
+                <span data-i18n="enviarRespuestas">Enviar Respuestas</span>
             </button>
         </form>
         
     </div>
     
-    <!-- =============================================
-         JAVASCRIPT: Actualizar barra de progreso
-         ============================================= -->
     <script>
-        // Obtener todas las tarjetas de preguntas
+        // Sistema de traducciones
+        const translations = {
+            es: {
+                testBat12: "Test BAT-12",
+                evaluacionAgotamiento: "Evaluación de Agotamiento Laboral",
+                comoResponder: "Como responder?",
+                instruccionesTest: "Responde cada pregunta pensando en como te has sentido en las ultimas semanas. La escala va de 1 (Nunca) a 5 (Siempre). No hay respuestas correctas o incorrectas.",
+                progreso: "Progreso",
+                enviarRespuestas: "Enviar Respuestas",
+                pregunta: "Pregunta",
+                de: "de",
+                nunca: "Nunca",
+                nuncaRaras: "Raras",
+                aVeces: "A veces",
+                aVecesOften: "A veces",
+                siempre: "Siempre"
+            },
+            en: {
+                testBat12: "BAT-12 Test",
+                evaluacionAgotamiento: "Workplace Burnout Assessment",
+                comoResponder: "How to answer?",
+                instruccionesTest: "Answer each question thinking about how you have felt in the last few weeks. The scale goes from 1 (Never) to 5 (Always). There are no right or wrong answers.",
+                progreso: "Progress",
+                enviarRespuestas: "Submit Answers",
+                pregunta: "Question",
+                de: "of",
+                nunca: "Never",
+                nuncaRaras: "Rarely",
+                aVeces: "Sometimes",
+                aVecesOften: "Often",
+                siempre: "Always"
+            },
+            ca: {
+                testBat12: "Test BAT-12",
+                evaluacionAgotamiento: "Avaluació d'Esgotament Laboral",
+                comoResponder: "Com respondre?",
+                instruccionsTest: "Respon a cada pregunta pensant com t'has sentit les últimes setmanes. L'escala va de 1 (Mai) a 5 (Sempre). No hi ha respostes correctes o incorrectes.",
+                progreso: "Progrés",
+                enviarRespuestas: "Enviar Respostes",
+                pregunta: "Pregunta",
+                de: "de",
+                nunca: "Mai",
+                nuncaRaras: "Rares",
+                aVeces: "A vegades",
+                aVecesOften: "A vegades",
+                sempre: "Sempre"
+            }
+        };
+        
+        function setLanguage(lang) {
+            localStorage.setItem('resilio-language', lang);
+            applyTranslations(lang);
+        }
+        
+        function applyTranslations(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.documentElement.lang = lang;
+            
+            // Traducir opciones de respuesta (valores dinamicos)
+            const optionTexts = document.querySelectorAll('.option-text');
+            const options = ['nunca', 'nuncaRaras', 'aVeces', 'aVecesOften', 'siempre'];
+            optionTexts.forEach((el, idx) => {
+                if (options[idx] && translations[lang][options[idx]]) {
+                    el.textContent = translations[lang][options[idx]];
+                }
+            });
+            
+            // Traducir numeros de pregunta
+            const questionNumbers = document.querySelectorAll('.question-number');
+            const total = questionNumbers.length;
+            questionNumbers.forEach((el, idx) => {
+                const pregKey = translations[lang]['pregunta'] || 'Pregunta';
+                const deKey = translations[lang]['de'] || 'de';
+                el.textContent = `${pregKey} ${idx + 1} ${deKey} ${total}`;
+            });
+        }
+        
+        // Aplicar idioma al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('resilio-language') || 'es';
+            applyTranslations(savedLang);
+        });
+        
         const questionCards = document.querySelectorAll('.question-card');
         const progressFill = document.getElementById('progress-fill');
         const progressText = document.getElementById('progress-text');
         const totalQuestions = questionCards.length;
         
-        // Función que cuenta cuántas preguntas están respondidas
         function updateProgress() {
             let answered = 0;
             questionCards.forEach(card => {
-                // Buscar si hay algún radio button seleccionado en esta tarjeta
                 const inputs = card.querySelectorAll('input[type="radio"]:checked');
                 if (inputs.length > 0) answered++;
             });
             
-            // Calcular porcentaje
             const percentage = (answered / totalQuestions) * 100;
             progressFill.style.width = percentage + '%';
             progressText.textContent = answered + ' de ' + totalQuestions;
         }
         
-        // Añadir evento de cambio a cada opción
         questionCards.forEach(card => {
             const inputs = card.querySelectorAll('input[type="radio"]');
             inputs.forEach(input => {
-                // Cuando el usuario marca una opción, actualizar la barra
                 input.addEventListener('change', updateProgress);
             });
         });
