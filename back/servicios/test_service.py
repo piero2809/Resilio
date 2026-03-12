@@ -9,12 +9,12 @@ Se encarga de:
 2. Calcular las medias de cada dimensión
 3. Guardar los resultados en la base de datos
 
-¿CÓMO SE USA?
+CÓMO SE USA:
 ---------------
 Se importa desde app.py y se llama así:
     exito, resultado = calcular_y_guardar_bat12(user_id, request.form, db)
 
-返回:
+RETORNA:
 - (True, media_total) si todo fue bien
 - (False, mensaje_error) si hubo algún problema
 
@@ -24,6 +24,10 @@ CONCEPTOS IMPORTANTES:
 - La puntuación va de 1 a 5
 - media = suma de valores / número de preguntas
 """
+
+import os
+import google.genai as genai
+from datetime import datetime
 
 
 def calcular_y_guardar_bat12(user_id, form_data, db):
@@ -136,6 +140,24 @@ def calcular_y_guardar_bat12(user_id, form_data, db):
         # Media global (todas las preguntas)
         media_total = round(suma_total / 12, 2)
 
+        # Determinar dimensión máxima para los consejos
+        dimensiones = {
+            "agotamiento": media_agotamiento,
+            "distanciamiento": media_distanciamiento,
+            "cognitivo": media_cognitivo,
+            "emocional": media_emocional,
+        }
+        dimension_maxima = max(dimensiones, key=dimensiones.get)
+
+        # Generar consejos con IA (si está configurada)
+        consejos = "No se han generado consejos. Configura la API de Gemini para obtener recomendaciones personalizadas."
+        try:
+            api_key = os.environ.get("GEMINI_API_KEY")
+            if api_key:
+                consejos = generar_consejos_ia(media_total, dimension_maxima, api_key)
+        except Exception as e:
+            print(f"Error al generar consejos: {e}")
+
         # =============================================
         # 6. GUARDAR EVALUACIÓN EN LA BASE DE DATOS
         # =============================================
@@ -143,8 +165,8 @@ def calcular_y_guardar_bat12(user_id, form_data, db):
 
         query_eval = """
             INSERT INTO evaluaciones 
-            (usuario_id, puntuacion_total, dim_agotamiento, dim_distanciamiento, dim_cognitivo, dim_emocional) 
-            VALUES (%s, %s, %s, %s, %s, %s)
+            (usuario_id, puntuacion_total, dim_agotamiento, dim_distanciamiento, dim_cognitivo, dim_emocional, consejos) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
 
         cursor.execute(
@@ -156,6 +178,7 @@ def calcular_y_guardar_bat12(user_id, form_data, db):
                 media_distanciamiento,
                 media_cognitivo,
                 media_emocional,
+                consejos,
             ),
         )
 
@@ -199,3 +222,35 @@ def calcular_y_guardar_bat12(user_id, form_data, db):
         # SIEMPRE cerramos el cursor, tanto si hay error como si no
         if cursor:
             cursor.close()
+
+
+def generar_consejos_ia(puntuacion, dimension_maxima, api_key):
+    """
+    Genera consejos personalizados usando Google Gemini.
+    """
+    try:
+        client = genai.Client(api_key=api_key)
+
+        prompt = f"""Un usuario ha sacado una puntuación de {puntuacion}/5 en un test de burnout.
+Su mayor problema es la {dimension_maxima}.
+Dame 3 consejos cortos y accionables para mejorar su salud mental hoy mismo."""
+
+        system_prompt = """Eres un asistente especializado en bienestar laboral para la plataforma Resilio. 
+Tus consejos deben basarse en la metodología del test BAT-12 (Burnout Assessment Tool).
+Reglas estrictas:
+1. Sé empático pero profesional.
+2. Si el nivel es crítico, recomienda SIEMPRE consultar con un profesional de la salud.
+3. Da consejos accionables (ej. ejercicios de respiración, gestión de pausas).
+4. No diagnostiques, solo sugiere hábitos basados en los resultados."""
+
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config=genai.types.GenerateContentConfig(system_instruction=system_prompt),
+        )
+        return response.text
+    except Exception as e:
+        print(f"Error con Gemini: {e}")
+        if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e).lower():
+            return "Cuota de la API agotada. Intenta de nuevo en unas horas o configura una API key con facturación."
+        return "Error al generar consejos. Por favor, intenta más tarde."

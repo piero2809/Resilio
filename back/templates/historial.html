@@ -50,12 +50,30 @@
                     {% endif %}
                 </div>
                 
+                {% if eval.consejos %}
+                <div class="history-consejos">
+                    <i class="fas fa-lightbulb" style="color: var(--neon-green);"></i>
+                    <span data-i18n="consejos">Consejos</span>
+                </div>
+                {% endif %}
+                
                 <button class="toggle-btn" id="btn-eval-{{ loop.index }}">
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
             
             <div class="history-details-expandable" id="eval-{{ loop.index }}">
+                {% if eval.consejos %}
+                <div class="consejos-section" style="margin-bottom: 24px;">
+                    <h4 style="color: var(--neon-green); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-lightbulb"></i>
+                        <span data-i18n="consejosPersonalizados">Consejos Personalizados</span>
+                    </h4>
+                    <div style="background: rgba(73, 243, 190, 0.1); border: 1px solid rgba(73, 243, 190, 0.3); border-radius: 12px; padding: 20px; color: var(--text-primary); line-height: 1.7; white-space: pre-line;">
+{{ eval.consejos }}
+                    </div>
+                </div>
+                {% endif %}
                 <div class="questions-grid">
                     {% for detalle in eval.detalles %}
                     <div class="question-item">
@@ -227,6 +245,15 @@
     .risk-badge.high {
         background: var(--coral-red-dim);
         color: var(--coral-red);
+    }
+    
+    .history-consejos {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        color: var(--neon-green);
+        font-weight: 600;
     }
     
     .history-details-expandable {

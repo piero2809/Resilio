@@ -40,7 +40,7 @@
 </div>
 
 <div class="results-section">
-    <div class="result-card">
+    <div class="result-card" style="flex: 1;">
         <h2><i class="fas fa-chart-pie" style="margin-right: 10px; color: var(--neon-green);"></i>Resumen de Dimensiones</h2>
         
         <div class="dimension-bar">
@@ -95,6 +95,23 @@
     </div>
 </div>
 
+{% if evaluacion.consejos %}
+<div class="consejos-panel">
+    <h2><i class="fas fa-lightbulb" style="margin-right: 10px; color: var(--neon-green);"></i>Consejos Personalizados</h2>
+    <div class="consejos-grid">
+        {% set consejos_list = evaluacion.consejos.split('\n') %}
+        {% for consejo in consejos_list %}
+            {% if consejo.strip() %}
+            <div class="consejo-card">
+                <div class="consejo-number">{{ loop.index }}</div>
+                <p>{{ consejo.strip() }}</p>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <div class="btn-action">
     <a href="/test" class="btn-secondary">
         <i class="fas fa-redo"></i>
@@ -115,18 +132,102 @@
         <i class="fas fa-play" style="margin-right: 10px;"></i>
         Comenzar Evaluación
     </a>
-</div>
+ </div>
 {% endif %}
+
+<style>
+    .results-section {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+    
+    .results-section .result-card {
+        flex: 1;
+        min-width: 300px;
+    }
+    
+    .consejos-panel {
+        background: var(--card-bg);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 30px;
+        margin-top: 24px;
+    }
+    
+    .consejos-panel h2 {
+        color: var(--text-primary);
+        font-size: 1.3rem;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .consejos-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    .consejo-card {
+        background: linear-gradient(135deg, rgba(73, 243, 190, 0.1), rgba(73, 243, 190, 0.05));
+        border: 1px solid rgba(73, 243, 190, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .consejo-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(73, 243, 190, 0.2);
+    }
+    
+    .consejo-number {
+        position: absolute;
+        top: -12px;
+        left: 20px;
+        width: 32px;
+        height: 32px;
+        background: var(--neon-green);
+        color: #0a0a0a;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    
+    .consejo-card p {
+        color: var(--text-primary);
+        line-height: 1.6;
+        font-size: 0.95rem;
+        margin-top: 8px;
+    }
+    
+    @media (max-width: 900px) {
+        .consejos-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .results-section {
+            flex-direction: column;
+        }
+    }
+</style>
 
 {% if evaluacion %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const ctx = document.getElementById('burnoutChart').getContext('2d');
         
-        const dataAgotamiento = Number("{{ evaluacion.dim_agotamiento }}");
-        const dataDistanciamiento = Number("{{ evaluacion.dim_distanciamiento }}");
-        const dataCognitivo = Number("{{ evaluacion.dim_cognitivo }}");
-        const dataEmocional = Number("{{ evaluacion.dim_emocional }}");
+        const dataAgotamiento = parseFloat("{{ evaluacion.dim_agotamiento }}");
+        const dataDistanciamiento = parseFloat("{{ evaluacion.dim_distanciamiento }}");
+        const dataCognitivo = parseFloat("{{ evaluacion.dim_cognitivo }}");
+        const dataEmocional = parseFloat("{{ evaluacion.dim_emocional }}");
+
+        console.log('Datos del gráfico:', dataAgotamiento, dataDistanciamiento, dataCognitivo, dataEmocional);
 
         new Chart(ctx, {
             type: 'radar',

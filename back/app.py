@@ -21,6 +21,11 @@ Por ejemplo:
 # IMPORTAR LIBRERÍAS (Heramientas que vamos a usar)
 # ================================================
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv(os.path.join(os.path.dirname(__file__), "API-KEY.env"))
+
 # Flask: el framework principal para crear la web
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 
@@ -184,7 +189,7 @@ def dashboard():
         # LIMIT 1 → solo cogemos la primera (la más reciente)
         query = """
             SELECT puntuacion_total, dim_agotamiento, dim_distanciamiento, 
-                   dim_cognitivo, dim_emocional, fecha 
+                   dim_cognitivo, dim_emocional, fecha, consejos 
             FROM evaluaciones 
             WHERE usuario_id = %s 
             ORDER BY fecha DESC LIMIT 1
@@ -253,7 +258,7 @@ def historial():
         # Obtener todas las evaluaciones del usuario, ordenadas por fecha
         query = """
             SELECT id, puntuacion_total, dim_agotamiento, dim_distanciamiento, 
-                   dim_cognitivo, dim_emocional, fecha 
+                   dim_cognitivo, dim_emocional, fecha, consejos 
             FROM evaluaciones 
             WHERE usuario_id = %s 
             ORDER BY fecha DESC
