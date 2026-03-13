@@ -222,12 +222,11 @@
     document.addEventListener('DOMContentLoaded', function () {
         const ctx = document.getElementById('burnoutChart').getContext('2d');
         
-        const dataAgotamiento = parseFloat("{{ evaluacion.dim_agotamiento }}");
-        const dataDistanciamiento = parseFloat("{{ evaluacion.dim_distanciamiento }}");
-        const dataCognitivo = parseFloat("{{ evaluacion.dim_cognitivo }}");
-        const dataEmocional = parseFloat("{{ evaluacion.dim_emocional }}");
-
-        console.log('Datos del gráfico:', dataAgotamiento, dataDistanciamiento, dataCognitivo, dataEmocional);
+        // El replace evita errores si Python manda los decimales con coma en lugar de punto
+        const dataAgotamiento = parseFloat("{{ evaluacion.dim_agotamiento }}".replace(',', '.'));
+        const dataDistanciamiento = parseFloat("{{ evaluacion.dim_distanciamiento }}".replace(',', '.'));
+        const dataCognitivo = parseFloat("{{ evaluacion.dim_cognitivo }}".replace(',', '.'));
+        const dataEmocional = parseFloat("{{ evaluacion.dim_emocional }}".replace(',', '.'));
 
         new Chart(ctx, {
             type: 'radar',
@@ -246,16 +245,22 @@
             options: {
                 scales: {
                     r: {
+                        // AQUÍ ESTÁ LA CORRECCIÓN CLAVE: min y max van directamente en "r"
+                        min: 0,
+                        max: 5,
                         angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                         grid: { color: 'rgba(255, 255, 255, 0.1)' },
                         pointLabels: { color: '#888', font: { size: 12 } },
-                        ticks: { min: 0, max: 5, stepSize: 1, display: false }
+                        ticks: { 
+                            stepSize: 1, 
+                            display: false 
+                        }
                     }
                 },
                 plugins: { legend: { display: false } }
             }
         });
     });
-</script>
+</script>   
 {% endif %}
 {% endblock %}
