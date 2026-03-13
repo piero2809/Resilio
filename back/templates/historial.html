@@ -70,7 +70,7 @@
                         <span data-i18n="consejosPersonalizados">Consejos Personalizados</span>
                     </h4>
                     <div style="background: rgba(73, 243, 190, 0.1); border: 1px solid rgba(73, 243, 190, 0.3); border-radius: 12px; padding: 20px; color: var(--text-primary); line-height: 1.7; white-space: pre-line;">
-{{ eval.consejos }}
+{{ eval.consejos | safe }}
                     </div>
                 </div>
                 {% endif %}

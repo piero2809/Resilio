@@ -97,7 +97,8 @@
                 <span>{{ evaluacion.dim_emocional }}/5</span>
             </div>
             <div class="progress-bg">
-                <div class="progress-fill {% if evaluacion.dim_emocional < 2.5 %}green{% elif evaluacion.dim_emocional < 3.5 %}yellow{% else %}red{% endif %}" style="width: {{ (evaluacion.dim_emocional / 5 * 100) }}%;">
+                <div class="progress-fill {% if evaluacion.dim_emocional < 2.5 %}green{% elif evaluacion.dim_emocional < 3.5 %}yellow{% else %}red{% endif %}"
+                    style="width: {{ (evaluacion.dim_emocional / 5 * 100) }}%;">
                 </div>
             </div>
         </div>
@@ -116,19 +117,20 @@
 
 {% if evaluacion.consejos %}
 <div class="consejos-panel">
-    <h2><i class="fas fa-lightbulb" style="margin-right: 10px; color: var(--neon-green);"></i>Consejos Personalizados
-    </h2>
-    <div class="consejos-grid">
-        {% set consejos_list = evaluacion.consejos.split('\n') %}
-        {% for consejo in consejos_list %}
-        {% if consejo.strip() %}
-        <div class="consejo-card">
-            <div class="consejo-number">{{ loop.index }}</div>
-            <p>{{ consejo.strip() }}</p>
-        </div>
-        {% endif %}
-        {% endfor %}
+
+    <div class="consejo-header" style="margin-bottom: 10px;">
+        <h2><i class="fas fa-lightbulb" style="margin-right: 10px; color: var(--neon-green);"></i>Consejos
+            Personalizados</h2>
     </div>
+
+    <div class="consejo-subheader" style="margin-bottom: 30px;">
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+            Basado en tus últimos resultados, aquí tienes tu plan de acción rápido:
+        </p>
+    </div>
+
+    {{ evaluacion.consejos | safe }}
+
 </div>
 {% endif %}
 
@@ -196,6 +198,16 @@
         font-size: 0.9rem;
     }
 
+    .consejo-card h4 {
+        color: var(--neon-green);
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
     .consejo-card p {
         color: var(--text-primary);
         line-height: 1.6;
@@ -244,7 +256,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const ctx = document.getElementById('burnoutChart').getContext('2d');
-        
+
         // El replace evita errores si Python manda los decimales con coma en lugar de punto
         const dataAgotamiento = parseFloat("{{ evaluacion.dim_agotamiento }}".replace(',', '.'));
         const dataDistanciamiento = parseFloat("{{ evaluacion.dim_distanciamiento }}".replace(',', '.'));
@@ -274,9 +286,9 @@
                         angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                         grid: { color: 'rgba(255, 255, 255, 0.1)' },
                         pointLabels: { color: '#888', font: { size: 12 } },
-                        ticks: { 
-                            stepSize: 1, 
-                            display: false 
+                        ticks: {
+                            stepSize: 1,
+                            display: false
                         }
                     }
                 },

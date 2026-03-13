@@ -1,35 +1,66 @@
 import google.genai as genai
+from google.genai import types
 
 def generar_consejos_ia(puntuacion, dimension_maxima, api_key):
-    """
-    Genera consejos personalizados usando Google Gemini.
-    """
     try:
-        # Usamos el cliente moderno de Gemini
+        # --- ADVERTENCIA 1: Inicio ---
+        print("\n⏳ [1/3] Iniciando cliente de Gemini (Nuevo SDK)...")
         client = genai.Client(api_key=api_key)
 
         prompt = f"""Un usuario ha sacado una puntuación de {puntuacion}/5 en un test de burnout.
-Su mayor problema es la {dimension_maxima}.
-Dame 3 consejos cortos y accionables para mejorar su salud mental hoy mismo."""
+Su mayor problema es la dimensión: {dimension_maxima}.
+Genera 3 consejos MUY BREVES (máximo 15 palabras cada uno).
+
+Devuelve EXACTAMENTE este código HTML con tus consejos integrados, sin usar Markdown ni bloques de código:
+<div class="consejos-grid">
+    <div class="consejo-card">
+        <h4>💡 [Título corto 1]</h4>
+        <p>[Tu consejo de max 15 palabras]</p>
+    </div>
+    <div class="consejo-card">
+        <h4>⚡ [Título corto 2]</h4>
+        <p>[Tu consejo de max 15 palabras]</p>
+    </div>
+    <div class="consejo-card">
+        <h4>🧘 [Título corto 3]</h4>
+        <p>[Tu consejo de max 15 palabras]</p>
+    </div>
+</div>"""
 
         system_prompt = """Eres un asistente especializado en bienestar laboral para la plataforma Resilio. 
-Tus consejos deben basarse en la metodología del test BAT-12 (Burnout Assessment Tool).
-Reglas estrictas:
+Reglas:
 1. Sé empático pero profesional.
-2. Si el nivel es crítico, recomienda SIEMPRE consultar con un profesional de la salud.
-3. Da consejos accionables (ej. ejercicios de respiración, gestión de pausas).
-4. No diagnostiques, solo sugiere hábitos basados en los resultados."""
+2. Da consejos accionables (ej. ejercicios de respiración).
+3. No diagnostiques, solo sugiere hábitos.
+4. MUY IMPORTANTE: Devuelve ÚNICAMENTE el código HTML puro que se te pide en el prompt. No incluyas saludos ni explicaciones extra."""
 
-        # AQUÍ DEFINIMOS EL MODELO EN UN SOLO LUGAR
+        # --- ADVERTENCIA 2: Petición enviada ---
+        print("🧠 [2/3] Enviando petición al modelo gemini-3-flash-preview...")
+        
         response = client.models.generate_content(
-            model="gemini-3.0-flash", # Puedes cambiar esto en el futuro fácilmente
+            model="gemini-3-flash-preview", 
             contents=prompt,
-            config=genai.types.GenerateContentConfig(system_instruction=system_prompt),
+            config=types.GenerateContentConfig(system_instruction=system_prompt),
         )
-        return response.text
+        
+        # --- ADVERTENCIA 3: Éxito ---
+        print("✅ [3/3] ¡Respuesta de Gemini 3 Flash recibida con éxito!\n")
+        
+       # Limpieza a prueba de balas para los backticks de la IA
+        texto_limpio = response.text.replace("```html", "").replace("```HTML", "").replace("```", "").strip()
+        
+        return texto_limpio
         
     except Exception as e:
-        print(f"Error con Gemini: {e}")
-        if "RESOURCE_EXHAUSTED" in str(e) or "quota" in str(e).lower():
-            return "Cuota de la API agotada. Intenta de nuevo en unas horas o verifica los límites en Google AI Studio."
-        return "Tómate un breve descanso y practica la respiración consciente mientras cargamos tus consejos personalizados."
+        # --- ADVERTENCIA DE FALLO EN TERMINAL ---
+        print(f"\n❌ ERROR CRÍTICO CON GEMINI: {e}\n")
+        
+        # Si falla, devolvemos una tarjeta roja de aviso para no romper el diseño HTML
+        return """
+        <div class="consejos-grid">
+            <div class="consejo-card" style="border-top-color: #ff4757;">
+                <h4>⚠️ Aviso del Sistema</h4>
+                <p>Tus resultados se guardaron con éxito, pero los consejos de la IA no pudieron cargar en este momento.</p>
+            </div>
+        </div>
+        """

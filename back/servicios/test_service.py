@@ -26,7 +26,6 @@ CONCEPTOS IMPORTANTES:
 """
 
 import os
-import google.genai as genai
 from datetime import datetime
 from servicios.ia_service import generar_consejos_ia
 
