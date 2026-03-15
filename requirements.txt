@@ -1,16 +1,12 @@
-blinker==1.9.0
-click==8.3.1
+# --- Framework Web (Core) ---
 Flask==3.1.2
-Flask-SQLAlchemy==3.1.1
-greenlet==3.3.1
-itsdangerous==2.2.0
-Jinja2==3.1.6
-MarkupSafe==3.0.3
-mysql-connector-python==9.5.0
-numpy==2.4.2
-pandas==3.0.0
-python-dateutil==2.9.0.post0
-six==1.17.0
-SQLAlchemy==2.0.46
-typing_extensions==4.15.0
 Werkzeug==3.1.5
+
+# --- Base de Datos ---
+mysql-connector-python==9.5.0
+
+# --- Inteligencia Artificial (Gemini) ---
+google-genai>=0.3.0
+
+# --- Seguridad y Variables de Entorno ---
+python-dotenv>=1.0.0
