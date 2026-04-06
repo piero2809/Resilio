@@ -1,4 +1,3 @@
--- 1. LA OPCIÓN NUCLEAR: Destruimos la base de datos vieja y empezamos limpios
 DROP DATABASE IF EXISTS resilio_db;
 CREATE DATABASE resilio_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE resilio_db;
@@ -40,11 +39,7 @@ CREATE TABLE departamentos (
     FOREIGN KEY (empresa_id) REFERENCES empresas(id) ON DELETE CASCADE
 );
 
--- Insertamos departamentos de prueba para TechCorp
-INSERT INTO departamentos (empresa_id, nombre) VALUES 
-(1, 'Tecnología de la Información (IT)'), 
-(1, 'Ventas y Marketing'), 
-(1, 'Recursos Humanos');
+
 
 -- Tabla de Usuarios
 CREATE TABLE usuarios (

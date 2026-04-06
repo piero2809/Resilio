@@ -62,15 +62,15 @@
                 </button>
             </div>
             
-            <div class="history-details-expandable" id="eval-{{ loop.index }}">
+          <div class="history-details-expandable" id="eval-{{ loop.index }}">
                 {% if eval.consejos %}
                 <div class="consejos-section" style="margin-bottom: 24px;">
                     <h4 style="color: var(--neon-green); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-lightbulb"></i>
                         <span data-i18n="consejosPersonalizados">Consejos Personalizados</span>
                     </h4>
-                    <div style="background: rgba(73, 243, 190, 0.1); border: 1px solid rgba(73, 243, 190, 0.3); border-radius: 12px; padding: 20px; color: var(--text-primary); line-height: 1.7; white-space: pre-line;">
-{{ eval.consejos | safe }}
+                    <div class="consejos-historial-wrapper">
+                        {{ eval.consejos | safe }}
                     </div>
                 </div>
                 {% endif %}
@@ -186,6 +186,7 @@
         align-items: center;
         gap: 8px;
     }
+    
     
     .history-score {
         display: flex;
@@ -361,6 +362,46 @@
         .questions-grid {
             grid-template-columns: 1fr;
         }
+    }
+    /* =========================================
+       ESTILOS DE TARJETAS IA PARA EL HISTORIAL
+       ========================================= */
+    .consejos-historial-wrapper .consejos-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .consejos-historial-wrapper .consejo-card {
+        flex: 1 1 200px; /* Se ajustan al ancho disponible */
+        background: linear-gradient(135deg, rgba(73, 243, 190, 0.08), rgba(73, 243, 190, 0.02));
+        border: 1px solid rgba(73, 243, 190, 0.3);
+        border-radius: 12px;
+        padding: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .consejos-historial-wrapper .consejo-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(73, 243, 190, 0.15);
+    }
+
+    .consejos-historial-wrapper .consejo-card h4 {
+        color: var(--neon-green);
+        font-size: 0.95rem;
+        margin-top: 0;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .consejos-historial-wrapper .consejo-card p {
+        color: var(--text-primary);
+        line-height: 1.4;
+        font-size: 0.85rem;
+        margin: 0;
     }
 </style>
 {% endblock %}

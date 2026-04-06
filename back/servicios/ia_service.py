@@ -7,11 +7,18 @@ def generar_consejos_ia(puntuacion, dimension_maxima, api_key):
         print("\n⏳ [1/3] Iniciando cliente de Gemini (Nuevo SDK)...")
         client = genai.Client(api_key=api_key)
 
-        prompt = f"""Un usuario ha sacado una puntuación de {puntuacion}/5 en un test de burnout.
-Su mayor problema es la dimensión: {dimension_maxima}.
-Genera 3 consejos MUY BREVES (máximo 15 palabras cada uno).
+        prompt = f"""Un usuario ha sacado una puntuación de {puntuacion}/5 en un test de burnout laboral (BAT-12). La escala es de 1 (Óptimo/Sin burnout) a 5 (Burnout severo).
+Su dimensión con puntuación más alta (si la hay) es: {dimension_maxima}.
 
-Devuelve EXACTAMENTE este código HTML con tus consejos integrados, sin usar Markdown ni bloques de código:
+REGLA DE EMPATÍA ESTRICTA:
+- Si la puntuación total es MENOR a 2.5: El usuario está muy bien. Tu tono debe ser de felicitación, animándolo a mantener sus buenos hábitos. Los consejos deben enfocarse en MANTENER este bienestar.
+- Si la puntuación es MAYOR o igual a 2.5: El usuario tiene riesgo o estrés. Tu tono debe ser muy empático, comprensivo y de apoyo sin juzgar. Los consejos deben enfocarse en REDUCIR la carga y desconectar.
+
+Genera EXACTAMENTE este código HTML puro, reemplazando los corchetes con tu contenido, sin usar Markdown ni backticks:
+
+<div class="consejo-intro" style="margin-bottom: 25px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+    <p>[Aquí escribe 2 o 3 líneas con tu mensaje empático personalizado, evaluando su puntuación de {puntuacion}/5]</p>
+</div>
 <div class="consejos-grid">
     <div class="consejo-card">
         <h4>💡 [Título corto 1]</h4>
