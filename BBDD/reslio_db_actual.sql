@@ -111,6 +111,7 @@ CREATE TABLE evaluaciones (
     dim_distanciamiento DECIMAL(4,2) NOT NULL,
     dim_cognitivo DECIMAL(4,2) NOT NULL,
     dim_emocional DECIMAL(4,2) NOT NULL,
+    consejos TEXT,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
