@@ -77,7 +77,25 @@
     .empresa-info { flex: 1; }
     .empresa-info .empresa-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
     .empresa-info .empresa-meta { font-size: 0.75rem; color: var(--text-secondary); }
-    .empresa-code { font-size: 0.72rem; font-family: 'Courier New', monospace; color: var(--neon-green); background: var(--neon-green-dim); padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+
+    /* ─── CÓDIGO DE EMPRESA CON COPIAR ─── */
+    .empresa-code-wrap { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .empresa-code {
+        font-size: 0.72rem; font-family: 'Courier New', monospace;
+        color: var(--neon-green); background: var(--neon-green-dim);
+        padding: 4px 10px; border-radius: 6px; font-weight: 600;
+        white-space: nowrap;
+    }
+    .btn-copy-code {
+        display: flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px; border-radius: 7px; border: none; cursor: pointer;
+        background: rgba(73,243,190,0.08); color: var(--neon-green);
+        font-size: 0.75rem; transition: background 0.18s ease, transform 0.15s ease;
+        flex-shrink: 0;
+    }
+    .btn-copy-code:hover { background: rgba(73,243,190,0.18); transform: scale(1.1); }
+    .btn-copy-code.copied { background: rgba(73,243,190,0.25); color: #fff; }
+
     .riesgo-item { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
     .riesgo-item:last-child { border-bottom: none; }
     .riesgo-avatar { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #0a0a0a; flex-shrink: 0; }
@@ -311,7 +329,16 @@
                     <div class="empresa-name">{{ e.nombre }}</div>
                     <div class="empresa-meta">{{ e.sector or 'Sin sector' }} · {{ e.total_empleados }} empleados</div>
                 </div>
-                <span class="empresa-code">{{ e.codigo_registro }}</span>
+                <div class="empresa-code-wrap">
+                    <span class="empresa-code" id="code-{{ loop.index }}">{{ e.codigo_registro }}</span>
+                    <button
+                        class="btn-copy-code"
+                        title="Copiar código"
+                        onclick="copyCode('code-{{ loop.index }}', this)"
+                        aria-label="Copiar código {{ e.codigo_registro }}">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
             </div>
             {% endfor %}
         {% else %}
@@ -511,6 +538,37 @@ function generarCodigo() {
     const suf = ['A','B','C','X','Z'][Math.floor(Math.random() * 5)];
     const code = `${adj[Math.floor(Math.random()*adj.length)]}-${num}-${suf}`;
     document.getElementById('codigo-input').value = code;
+}
+
+// ─── COPIAR CÓDIGO DE EMPRESA ───
+function copyCode(spanId, btn) {
+    const code = document.getElementById(spanId).textContent.trim();
+    navigator.clipboard.writeText(code).then(() => {
+        const icon = btn.querySelector('i');
+        icon.className = 'fas fa-check';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            icon.className = 'fas fa-copy';
+            btn.classList.remove('copied');
+        }, 1800);
+    }).catch(() => {
+        // Fallback para contextos sin HTTPS
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const icon = btn.querySelector('i');
+        icon.className = 'fas fa-check';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            icon.className = 'fas fa-copy';
+            btn.classList.remove('copied');
+        }, 1800);
+    });
 }
 
 // ─── CHART ───
