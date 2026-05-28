@@ -3,223 +3,389 @@
 {% block title %}Dashboard HR{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-  <div class="mb-4">
-    <h1 class="h3 mb-1">Panel de Recursos Humanos</h1>
-    <p class="text-muted mb-0">
-      Vista agregada y anónima de la empresa
-      {% if session.get("nombre_empresa") %}
-        <strong>{{ session["nombre_empresa"] }}</strong>
-      {% endif %}
-    </p>
-  </div>
-
-  <div class="row g-3 mb-4">
-    <div class="col-md-6 col-xl-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <p class="text-muted mb-1">Empleados</p>
-          <h2 class="h4 mb-0">{{ stats.total_empleados }}</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-6 col-xl-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <p class="text-muted mb-1">Evaluaciones</p>
-          <h2 class="h4 mb-0">{{ stats.total_evaluaciones }}</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-6 col-xl-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <p class="text-muted mb-1">Riesgo alto</p>
-          <h2 class="h4 mb-0">{{ stats.empleados_riesgo_alto }}</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-6 col-xl-3">
-      <div class="card shadow-sm h-100">
-        <div class="card-body">
-          <p class="text-muted mb-1">% riesgo alto</p>
-          <h2 class="h4 mb-0">{{ stats.pct_riesgo_alto }}%</h2>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row g-3 mb-4">
-    <div class="col-lg-7">
-      <div class="card shadow-sm h-100">
-        <div class="card-header">
-          <h3 class="h5 mb-0">Promedios BAT-12</h3>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-sm-6">
-              <div class="border rounded p-3">
-                <p class="text-muted mb-1">Media global</p>
-                <strong>{{ medias.media_global or 0 }}</strong>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="border rounded p-3">
-                <p class="text-muted mb-1">Agotamiento</p>
-                <strong>{{ medias.agotamiento or 0 }}</strong>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="border rounded p-3">
-                <p class="text-muted mb-1">Distanciamiento</p>
-                <strong>{{ medias.distanciamiento or 0 }}</strong>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="border rounded p-3">
-                <p class="text-muted mb-1">Deterioro cognitivo</p>
-                <strong>{{ medias.cognitivo or 0 }}</strong>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="border rounded p-3">
-                <p class="text-muted mb-1">Deterioro emocional</p>
-                <strong>{{ medias.emocional or 0 }}</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-5">
-      <div class="card shadow-sm h-100">
-        <div class="card-header">
-          <h3 class="h5 mb-0">Distribución de riesgo</h3>
-        </div>
-        <div class="card-body">
-          <div class="d-flex flex-column gap-3">
-            <div class="border rounded p-3 d-flex justify-content-between align-items-center">
-              <span>Riesgo bajo</span>
-              <strong>{{ riesgo.bajo or 0 }}</strong>
-            </div>
-            <div class="border rounded p-3 d-flex justify-content-between align-items-center">
-              <span>Riesgo medio</span>
-              <strong>{{ riesgo.medio or 0 }}</strong>
-            </div>
-            <div class="border rounded p-3 d-flex justify-content-between align-items-center">
-              <span>Riesgo alto</span>
-              <strong>{{ riesgo.alto or 0 }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row g-3 mb-4">
-    <div class="col-lg-7">
-      <div class="card shadow-sm h-100">
-        <div class="card-header">
-          <h3 class="h5 mb-0">Departamentos</h3>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table mb-0">
-              <thead>
-                <tr>
-                  <th>Departamento</th>
-                  <th>Empleados</th>
-                  <th>Evaluaciones</th>
-                  <th>Media global</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% if departamentos %}
-                  {% for depto in departamentos %}
-                  <tr>
-                    <td>{{ depto.departamento }}</td>
-                    <td>{{ depto.empleados }}</td>
-                    <td>{{ depto.evaluaciones }}</td>
-                    <td>{{ depto.media_global if depto.media_global is not none else "—" }}</td>
-                  </tr>
-                  {% endfor %}
-                {% else %}
-                  <tr>
-                    <td colspan="4" class="text-center text-muted py-4">No hay datos disponibles.</td>
-                  </tr>
+<div class="dashboard-content hr-dashboard">
+    <div class="page-header">
+        <div>
+            <h1>Panel de Recursos Humanos</h1>
+            <p class="page-subtitle">
+                Vista agregada y anónima de la empresa
+                {% if session.get("nombre_empresa") %}
+                    <strong>{{ session["nombre_empresa"] }}</strong>
                 {% endif %}
-              </tbody>
-            </table>
-          </div>
+            </p>
         </div>
-      </div>
     </div>
 
-    <div class="col-lg-5">
-      <div class="card shadow-sm h-100">
-        <div class="card-header">
-          <h3 class="h5 mb-0">Evaluaciones recientes</h3>
-        </div>
-        <div class="card-body">
-          {% if evaluaciones_recientes %}
-            <div class="d-flex flex-column gap-3">
-              {% for ev in evaluaciones_recientes %}
-              <div class="border rounded p-3">
-                <div class="d-flex justify-content-between">
-                  <strong>{{ ev.alias }}</strong>
-                  <span class="text-muted">{{ ev.fecha }}</span>
-                </div>
-                <div class="mt-2">
-                  <span class="text-muted">Puntuación global:</span>
-                  <strong>{{ ev.puntuacion_total }}</strong>
-                </div>
-              </div>
-              {% endfor %}
+    <section class="stats-grid">
+        <article class="stat-card">
+            <span class="stat-label">Empleados</span>
+            <strong class="stat-value">{{ stats.total_empleados }}</strong>
+        </article>
+        <article class="stat-card">
+            <span class="stat-label">Evaluaciones</span>
+            <strong class="stat-value">{{ stats.total_evaluaciones }}</strong>
+        </article>
+        <article class="stat-card">
+            <span class="stat-label">Riesgo alto</span>
+            <strong class="stat-value">{{ stats.empleados_riesgo_alto }}</strong>
+        </article>
+        <article class="stat-card">
+            <span class="stat-label">% riesgo alto</span>
+            <strong class="stat-value">{{ stats.pct_riesgo_alto }}%</strong>
+        </article>
+    </section>
+
+    <section class="charts-grid">
+        <article class="panel-card">
+            <div class="panel-header">
+                <h2>Tendencia mensual</h2>
             </div>
-          {% else %}
-            <p class="text-muted mb-0">Aún no hay evaluaciones registradas.</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
+            <div class="chart-wrap">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </article>
 
-  <div class="card shadow-sm">
-    <div class="card-header">
-      <h3 class="h5 mb-0">Tendencia mensual</h3>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table mb-0">
-          <thead>
-            <tr>
-              <th>Mes</th>
-              <th>Total evaluaciones</th>
-              <th>Riesgo alto</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% if tendencia_mensual %}
-              {% for item in tendencia_mensual %}
-              <tr>
-                <td>{{ item.mes }}</td>
-                <td>{{ item.total }}</td>
-                <td>{{ item.riesgo_alto }}</td>
-              </tr>
-              {% endfor %}
-            {% else %}
-              <tr>
-                <td colspan="3" class="text-center text-muted py-4">Sin datos mensuales todavía.</td>
-              </tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+        <article class="panel-card">
+            <div class="panel-header">
+                <h2>Distribución de riesgo</h2>
+            </div>
+            <div class="chart-wrap doughnut-wrap">
+                <canvas id="riskChart"></canvas>
+            </div>
+        </article>
+    </section>
+
+    <section class="tables-grid">
+        <article class="panel-card">
+            <div class="panel-header">
+                <h2>Promedios BAT-12</h2>
+            </div>
+            <div class="metrics-list">
+                <div class="metric-item">
+                    <span>Media global</span>
+                    <strong>{{ medias.media_global or 0 }}</strong>
+                </div>
+                <div class="metric-item">
+                    <span>Agotamiento</span>
+                    <strong>{{ medias.agotamiento or 0 }}</strong>
+                </div>
+                <div class="metric-item">
+                    <span>Distanciamiento</span>
+                    <strong>{{ medias.distanciamiento or 0 }}</strong>
+                </div>
+                <div class="metric-item">
+                    <span>Deterioro cognitivo</span>
+                    <strong>{{ medias.cognitivo or 0 }}</strong>
+                </div>
+                <div class="metric-item">
+                    <span>Deterioro emocional</span>
+                    <strong>{{ medias.emocional or 0 }}</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="panel-card">
+            <div class="panel-header">
+                <h2>Departamentos</h2>
+            </div>
+            <div class="table-wrap">
+                <table class="resilio-table">
+                    <thead>
+                        <tr>
+                            <th>Departamento</th>
+                            <th>Empleados</th>
+                            <th>Evaluaciones</th>
+                            <th>Media global</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if departamentos %}
+                            {% for depto in departamentos %}
+                            <tr>
+                                <td>{{ depto.departamento }}</td>
+                                <td>{{ depto.empleados }}</td>
+                                <td>{{ depto.evaluaciones }}</td>
+                                <td>{{ depto.media_global if depto.media_global is not none else "—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="empty-cell">No hay datos disponibles.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </section>
+
+    <section class="tables-grid">
+        <article class="panel-card">
+            <div class="panel-header">
+                <h2>Evaluaciones recientes</h2>
+            </div>
+            <div class="table-wrap">
+                <table class="resilio-table">
+                    <thead>
+                        <tr>
+                            <th>Empleado</th>
+                            <th>Fecha</th>
+                            <th>Puntuación global</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if evaluaciones_recientes %}
+                            {% for ev in evaluaciones_recientes %}
+                            <tr>
+                                <td>{{ ev.alias }}</td>
+                                <td>{{ ev.fecha }}</td>
+                                <td>{{ ev.puntuacion_total }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="empty-cell">Aún no hay evaluaciones registradas.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </section>
 </div>
+
+<style>
+.hr-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+}
+
+.page-header h1 {
+    margin: 0 0 6px;
+    font-size: 2rem;
+    color: #ffffff;
+}
+
+.page-subtitle {
+    margin: 0;
+    color: #b8c2cc;
+    font-size: 0.95rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.stat-card,
+.panel-card {
+    background: rgba(17, 24, 39, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
+
+.stat-card {
+    padding: 20px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 2rem;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.charts-grid,
+.tables-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 18px;
+}
+
+.panel-header {
+    padding: 18px 20px 0;
+}
+
+.panel-header h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.1rem;
+}
+
+.chart-wrap {
+    padding: 20px;
+    height: 320px;
+}
+
+.doughnut-wrap {
+    max-width: 420px;
+}
+
+.metrics-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 20px;
+}
+
+.metric-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: #e5e7eb;
+}
+
+.metric-item span {
+    color: #94a3b8;
+}
+
+.table-wrap {
+    padding: 18px 20px 20px;
+    overflow-x: auto;
+}
+
+.resilio-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.resilio-table thead th {
+    text-align: left;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.resilio-table tbody td {
+    padding: 14px 10px;
+    color: #e5e7eb;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.empty-cell {
+    text-align: center;
+    color: #94a3b8;
+    padding: 20px 10px;
+}
+
+@media (max-width: 1100px) {
+    .stats-grid,
+    .charts-grid,
+    .tables-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metrics-list {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+<script>
+    const trendData = {{ tendencia_mensual | tojson }};
+    const riskData = {{ riesgo | tojson }};
+
+    const trendLabels = trendData.map(item => item.mes);
+    const trendTotals = trendData.map(item => item.total);
+    const trendHigh = trendData.map(item => item.riesgo_alto);
+
+    const trendCtx = document.getElementById('trendChart');
+    if (trendCtx) {
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [
+                    {
+                        label: 'Evaluaciones',
+                        data: trendTotals,
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.18)',
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 3
+                    },
+                    {
+                        label: 'Riesgo alto',
+                        data: trendHigh,
+                        borderColor: '#f97316',
+                        backgroundColor: 'rgba(249, 115, 22, 0.12)',
+                        tension: 0.35,
+                        fill: false,
+                        borderWidth: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#e5e7eb' }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#94a3b8',
+                            precision: 0
+                        },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    }
+                }
+            }
+        });
+    }
+
+    const riskCtx = document.getElementById('riskChart');
+    if (riskCtx) {
+        new Chart(riskCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Riesgo bajo', 'Riesgo medio', 'Riesgo alto'],
+                datasets: [{
+                    data: [
+                        riskData.bajo || 0,
+                        riskData.medio || 0,
+                        riskData.alto || 0
+                    ],
+                    backgroundColor: ['#22c55e', '#facc15', '#ef4444'],
+                    borderColor: '#0f172a',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#e5e7eb' }
+                    }
+                }
+            }
+        });
+    }
+</script>
 {% endblock %}

@@ -97,18 +97,12 @@
 
 {% if evaluacion.consejos %}
 <div class="consejos-panel">
-    <h2><i class="fas fa-lightbulb" style="margin-right: 10px; color: var(--neon-green);"></i>Consejos Personalizados</h2>
-    <div class="consejos-grid">
-        {% set consejos_list = evaluacion.consejos.split('\n') %}
-        {% for consejo in consejos_list %}
-            {% if consejo.strip() %}
-            <div class="consejo-card">
-                <div class="consejo-number">{{ loop.index }}</div>
-                <p>{{ consejo.strip() }}</p>
-            </div>
-            {% endif %}
-        {% endfor %}
-    </div>
+    <h2>
+        <i class="fas fa-lightbulb" style="margin-right: 10px; color: var(--neon-green);"></i>
+        Consejos Personalizados
+    </h2>
+
+    {{ evaluacion.consejos | safe }}
 </div>
 {% endif %}
 
