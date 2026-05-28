@@ -34,6 +34,19 @@ def solo_admin(f):
         return f(*args, **kwargs)
     return decorated
 
+def solo_hr(f):
+    """Decorador: restringe acceso a usuarios HR (rol 2)."""
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+        if session.get("rol") != 2:
+            flash("Acceso restringido a usuarios HR.", "error")
+            return redirect(url_for("dashboard"))
+        return f(*args, **kwargs)
+    return decorated
+
 def tiempo_relativo(fecha):
     """Devuelve una cadena como 'hace 5 min', 'hace 2h', etc."""
     if not fecha:
@@ -80,6 +93,7 @@ def login():
             session["nombre"] = usuario["nombre"]
             session["rol"] = usuario["rol_id"]
             session["empresa_id"] = usuario["empresa_id"]
+            session["departamento_id"] = usuario["departamento_id"]
             session["nombre_empresa"] = usuario["empresa_nombre"]
             session["nombre_dept"] = usuario["departamento_nombre"]
             return redirect(url_for("dashboard"))
@@ -142,11 +156,14 @@ def register():
             flash("¡Cuenta creada con éxito! Ya puedes iniciar sesión.", "success")
             return redirect(url_for("login"))
         except Exception as e:
-            if db: db.rollback()
+            if db:
+                db.rollback()
             flash(f"Error al crear la cuenta: {e}", "error")
         finally:
-            if cursor: cursor.close()
-            if db: db.close()
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
 
     return render_template("register.html")
 
@@ -279,7 +296,9 @@ def dashboard():
                 for i in range(5, -1, -1):
                     m = today.month - i
                     y = today.year
-                    while m <= 0: m += 12; y -= 1
+                    while m <= 0:
+                        m += 12
+                        y -= 1
                     tendencia_mensual.append({"mes": f"{calendar.month_abbr[m]} {y}", "total": 0, "riesgo_alto": 0})
 
         except Exception as e:
@@ -290,14 +309,179 @@ def dashboard():
             cursor.close()
             db.close()
 
-        return render_template("dashboards/admin.html",
+        return render_template(
+            "dashboards/admin.html",
             stats=stats, usuarios=usuarios, empresas=empresas,
             usuarios_riesgo=usuarios_riesgo, actividad=actividad,
-            tendencia_mensual=tendencia_mensual)
+            tendencia_mensual=tendencia_mensual
+        )
 
     # ── HR ─────────────────────────────────────────────
     elif rol == 2:
-        return render_template("dashboards/hr.html")
+        empresa_id = session.get("empresa_id")
+
+        if not empresa_id:
+            flash("Tu usuario HR no tiene una empresa asignada.", "error")
+            return redirect(url_for("logout"))
+
+        db = obtener_conexion()
+        if not db:
+            flash("Error de conexión.", "error")
+            return redirect(url_for("login"))
+
+        cursor = db.cursor(dictionary=True)
+        try:
+            cursor.execute("""
+                SELECT COUNT(*) AS t
+                FROM usuarios
+                WHERE empresa_id = %s AND rol_id = 4
+            """, (empresa_id,))
+            total_empleados = cursor.fetchone()["t"]
+
+            cursor.execute("""
+                SELECT COUNT(ev.id) AS t
+                FROM evaluaciones ev
+                JOIN usuarios u ON u.id = ev.usuario_id
+                WHERE u.empresa_id = %s AND u.rol_id = 4
+            """, (empresa_id,))
+            total_evaluaciones = cursor.fetchone()["t"]
+
+            cursor.execute("""
+                SELECT COUNT(DISTINCT usuario_id) AS t
+                FROM (
+                    SELECT ev.usuario_id, ev.puntuacion_total,
+                           ROW_NUMBER() OVER (PARTITION BY ev.usuario_id ORDER BY ev.fecha DESC) AS rn
+                    FROM evaluaciones ev
+                    JOIN usuarios u ON u.id = ev.usuario_id
+                    WHERE u.empresa_id = %s AND u.rol_id = 4
+                ) x
+                WHERE rn = 1 AND puntuacion_total >= 3.5
+            """, (empresa_id,))
+            empleados_riesgo_alto = cursor.fetchone()["t"]
+            pct_riesgo_alto = round((empleados_riesgo_alto / total_empleados) * 100, 1) if total_empleados else 0
+
+            stats = dict(
+                total_empleados=total_empleados,
+                total_evaluaciones=total_evaluaciones,
+                empleados_riesgo_alto=empleados_riesgo_alto,
+                pct_riesgo_alto=pct_riesgo_alto
+            )
+
+            cursor.execute("""
+                SELECT
+                    ROUND(AVG(ev.puntuacion_total), 2) AS media_global,
+                    ROUND(AVG(ev.dim_agotamiento), 2) AS agotamiento,
+                    ROUND(AVG(ev.dim_distanciamiento), 2) AS distanciamiento,
+                    ROUND(AVG(ev.dim_cognitivo), 2) AS cognitivo,
+                    ROUND(AVG(ev.dim_emocional), 2) AS emocional
+                FROM evaluaciones ev
+                JOIN usuarios u ON u.id = ev.usuario_id
+                WHERE u.empresa_id = %s AND u.rol_id = 4
+            """, (empresa_id,))
+            medias = cursor.fetchone()
+
+            cursor.execute("""
+                SELECT
+                    SUM(CASE WHEN t.puntuacion_total < 2.5 THEN 1 ELSE 0 END) AS bajo,
+                    SUM(CASE WHEN t.puntuacion_total >= 2.5 AND t.puntuacion_total < 3.5 THEN 1 ELSE 0 END) AS medio,
+                    SUM(CASE WHEN t.puntuacion_total >= 3.5 THEN 1 ELSE 0 END) AS alto
+                FROM (
+                    SELECT ev.usuario_id, ev.puntuacion_total,
+                           ROW_NUMBER() OVER (PARTITION BY ev.usuario_id ORDER BY ev.fecha DESC) AS rn
+                    FROM evaluaciones ev
+                    JOIN usuarios u ON u.id = ev.usuario_id
+                    WHERE u.empresa_id = %s AND u.rol_id = 4
+                ) t
+                WHERE t.rn = 1
+            """, (empresa_id,))
+            riesgo = cursor.fetchone()
+
+            cursor.execute("""
+                SELECT
+                    COALESCE(d.nombre, 'Sin departamento') AS departamento,
+                    COUNT(DISTINCT u.id) AS empleados,
+                    COUNT(ev.id) AS evaluaciones,
+                    ROUND(AVG(ev.puntuacion_total), 2) AS media_global
+                FROM usuarios u
+                LEFT JOIN departamentos d ON d.id = u.departamento_id
+                LEFT JOIN evaluaciones ev ON ev.usuario_id = u.id
+                WHERE u.empresa_id = %s AND u.rol_id = 4
+                GROUP BY d.id, d.nombre
+                ORDER BY media_global DESC
+            """, (empresa_id,))
+            departamentos = cursor.fetchall()
+
+            cursor.execute("""
+                SELECT DATE_FORMAT(ev.fecha,'%b %Y') AS mes,
+                       COUNT(*) AS total,
+                       SUM(CASE WHEN ev.puntuacion_total >= 3.5 THEN 1 ELSE 0 END) AS riesgo_alto
+                FROM evaluaciones ev
+                JOIN usuarios u ON u.id = ev.usuario_id
+                WHERE u.empresa_id = %s
+                  AND u.rol_id = 4
+                  AND ev.fecha >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+                GROUP BY DATE_FORMAT(ev.fecha,'%Y-%m'), DATE_FORMAT(ev.fecha,'%b %Y')
+                ORDER BY MIN(ev.fecha) ASC
+            """, (empresa_id,))
+            tendencia_mensual = [{"mes": r["mes"], "total": int(r["total"]), "riesgo_alto": int(r["riesgo_alto"])} for r in cursor.fetchall()]
+
+            if not tendencia_mensual:
+                today = date.today()
+                for i in range(5, -1, -1):
+                    m = today.month - i
+                    y = today.year
+                    while m <= 0:
+                        m += 12
+                        y -= 1
+                    tendencia_mensual.append({"mes": f"{calendar.month_abbr[m]} {y}", "total": 0, "riesgo_alto": 0})
+
+            cursor.execute("""
+                SELECT
+                    DATE_FORMAT(MAX(ev.fecha), '%d/%m/%Y') AS fecha,
+                    CONCAT('Empleado ', LPAD(
+                        ROW_NUMBER() OVER (ORDER BY MAX(ev.fecha) DESC, u.id ASC), 2, '0'
+                    )) AS alias,
+                    ROUND(MAX(CASE
+                        WHEN ev.fecha = ult.ultima_fecha THEN ev.puntuacion_total
+                        ELSE NULL
+                    END), 2) AS puntuacion_total
+                FROM usuarios u
+                JOIN (
+                    SELECT ev.usuario_id, MAX(ev.fecha) AS ultima_fecha
+                    FROM evaluaciones ev
+                    JOIN usuarios ux ON ux.id = ev.usuario_id
+                    WHERE ux.empresa_id = %s AND ux.rol_id = 4
+                    GROUP BY ev.usuario_id
+                ) ult ON ult.usuario_id = u.id
+                JOIN evaluaciones ev ON ev.usuario_id = u.id
+                WHERE u.empresa_id = %s AND u.rol_id = 4
+                GROUP BY u.id
+                ORDER BY ult.ultima_fecha DESC
+                LIMIT 10
+            """, (empresa_id, empresa_id))
+            evaluaciones_recientes = cursor.fetchall()
+
+        except Exception as e:
+            flash(f"Error al cargar el panel HR: {e}", "error")
+            stats = dict(total_empleados=0, total_evaluaciones=0, empleados_riesgo_alto=0, pct_riesgo_alto=0)
+            medias = dict(media_global=0, agotamiento=0, distanciamiento=0, cognitivo=0, emocional=0)
+            riesgo = dict(bajo=0, medio=0, alto=0)
+            departamentos = []
+            tendencia_mensual = []
+            evaluaciones_recientes = []
+        finally:
+            cursor.close()
+            db.close()
+
+        return render_template(
+            "dashboards/hr.html",
+            stats=stats,
+            medias=medias,
+            riesgo=riesgo,
+            departamentos=departamentos,
+            tendencia_mensual=tendencia_mensual,
+            evaluaciones_recientes=evaluaciones_recientes
+        )
 
     # ── PERSONAL / EMPRESA ─────────────────────────────
     else:
@@ -350,11 +534,14 @@ def nueva_empresa():
         db.commit()
         flash(f"✓ Empresa '{nombre}' creada con código {codigo}.", "success")
     except Exception as e:
-        if db: db.rollback()
+        if db:
+            db.rollback()
         flash(f"Error al crear empresa: {e}", "error")
     finally:
-        if cursor: cursor.close()
-        if db: db.close()
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
 
     return redirect(url_for("dashboard"))
 
@@ -370,8 +557,12 @@ def nuevo_usuario():
     password = request.form.get("password", "")
     rol_id = int(request.form.get("rol_id", 3))
     empresa_id = request.form.get("empresa_id") or None
+    departamento_id = request.form.get("departamento_id") or None
+
     if empresa_id:
         empresa_id = int(empresa_id)
+    if departamento_id:
+        departamento_id = int(departamento_id)
 
     if not nombre or not email or not password:
         flash("Nombre, email y contraseña son obligatorios.", "error")
@@ -391,17 +582,23 @@ def nuevo_usuario():
             return redirect(url_for("dashboard"))
 
         cursor.execute(
-            "INSERT INTO usuarios (rol_id, empresa_id, nombre, apellidos, email, password) VALUES (%s,%s,%s,%s,%s,%s)",
-            (rol_id, empresa_id, nombre, apellidos or None, email, generate_password_hash(password)),
+            """
+            INSERT INTO usuarios (rol_id, empresa_id, departamento_id, nombre, apellidos, email, password)
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
+            """,
+            (rol_id, empresa_id, departamento_id, nombre, apellidos or None, email, generate_password_hash(password)),
         )
         db.commit()
         flash(f"✓ Usuario '{nombre}' creado correctamente.", "success")
     except Exception as e:
-        if db: db.rollback()
+        if db:
+            db.rollback()
         flash(f"Error al crear usuario: {e}", "error")
     finally:
-        if cursor: cursor.close()
-        if db: db.close()
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
 
     return redirect(url_for("dashboard"))
 
@@ -490,14 +687,12 @@ def informe_global():
 
     cursor = db.cursor(dictionary=True)
     try:
-        # Stats básicas
         cursor.execute("SELECT COUNT(*) AS t FROM usuarios")
         total_usuarios = cursor.fetchone()["t"]
         cursor.execute("SELECT COUNT(*) AS t FROM evaluaciones")
         total_evaluaciones = cursor.fetchone()["t"]
         stats = dict(total_usuarios=total_usuarios, total_evaluaciones=total_evaluaciones)
 
-        # Distribución de riesgo (última evaluación por usuario)
         cursor.execute("""
             SELECT
                 SUM(CASE WHEN puntuacion_total < 2.5 THEN 1 ELSE 0 END) AS bajo,
@@ -516,7 +711,6 @@ def informe_global():
             alto=int(riesgo_row["alto"] or 0),
         )
 
-        # Medias globales por dimensión
         cursor.execute("""
             SELECT
                 ROUND(AVG(dim_agotamiento), 2) AS agotamiento,
@@ -529,7 +723,6 @@ def informe_global():
         medias_row = cursor.fetchone()
         medias = {k: float(v) if v else 0 for k, v in medias_row.items()} if medias_row["global"] else None
 
-        # Stats por empresa
         cursor.execute("""
             SELECT e.nombre,
                    COUNT(DISTINCT u.id) AS empleados,
@@ -552,7 +745,6 @@ def informe_global():
                 "media_agotamiento": float(r["media_agotamiento"]) if r["media_agotamiento"] else None,
             })
 
-        # Top usuarios en riesgo
         cursor.execute("""
             SELECT u.nombre, u.apellidos, emp.nombre AS empresa_nombre, t.puntuacion_total
             FROM (
@@ -567,7 +759,6 @@ def informe_global():
         """)
         top_riesgo = cursor.fetchall()
 
-        # Evolución mensual (media global)
         cursor.execute("""
             SELECT DATE_FORMAT(fecha,'%b %Y') AS mes,
                    ROUND(AVG(puntuacion_total), 2) AS media
@@ -582,7 +773,9 @@ def informe_global():
             for i in range(5, -1, -1):
                 m = today.month - i
                 y = today.year
-                while m <= 0: m += 12; y -= 1
+                while m <= 0:
+                    m += 12
+                    y -= 1
                 evolucion_mensual.append({"mes": f"{calendar.month_abbr[m]} {y}", "media": 0})
 
     except Exception as e:
@@ -594,10 +787,12 @@ def informe_global():
         cursor.close()
         db.close()
 
-    return render_template("dashboards/informe_global.html",
+    return render_template(
+        "dashboards/informe_global.html",
         stats=stats, riesgo=riesgo, medias=medias,
         empresas_stats=empresas_stats, top_riesgo=top_riesgo,
-        evolucion_mensual=evolucion_mensual)
+        evolucion_mensual=evolucion_mensual
+    )
 
 
 # ─── HISTORIAL ─────────────────────────────────────────────────────────────────
@@ -629,8 +824,10 @@ def historial():
     except Exception as e:
         flash(f"Error al cargar el historial: {e}", "error")
     finally:
-        if cursor: cursor.close()
-        if db: db.close()
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
 
     return render_template("historial.html", evaluaciones=evaluaciones)
 
@@ -662,8 +859,10 @@ def realizar_test():
         flash(f"Error al cargar el test: {e}", "error")
         return redirect(url_for("dashboard"))
     finally:
-        if cursor: cursor.close()
-        if db: db.close()
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
 
     return render_template("test.html", preguntas=preguntas)
 
@@ -689,7 +888,8 @@ def procesar_test():
     except Exception as e:
         flash(f"Error inesperado: {str(e)}", "error")
     finally:
-        if db: db.close()
+        if db:
+            db.close()
 
     return redirect(url_for("dashboard"))
 
