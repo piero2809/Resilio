@@ -1,0 +1,381 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<style>
+    .informe-header { margin-bottom: 36px; }
+    .informe-header h1 { font-size: 1.9rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; margin-bottom: 6px; }
+    .informe-header p { color: var(--text-secondary); font-size: 0.9rem; }
+    .back-link {
+        display: inline-flex; align-items: center; gap: 8px;
+        color: var(--text-secondary); text-decoration: none; font-size: 0.85rem;
+        font-weight: 600; margin-bottom: 20px; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--neon-green); }
+
+    .informe-grid-top { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; }
+    .informe-card {
+        background: var(--card-bg); border: 1px solid var(--border-color);
+        border-radius: 16px; padding: 28px;
+    }
+    .informe-card-title {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 1rem; font-weight: 700; color: var(--text-primary);
+        margin-bottom: 24px;
+    }
+    .informe-card-title i { color: var(--neon-green); }
+
+    /* Distribución por riesgo */
+    .risk-donut-wrapper { display: flex; align-items: center; gap: 24px; }
+    .risk-donut-wrapper canvas { max-width: 130px; max-height: 130px; }
+    .risk-legend { flex: 1; }
+    .risk-legend-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-size: 0.85rem;
+    }
+    .risk-legend-item:last-child { border-bottom: none; }
+    .risk-legend-dot {
+        width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex-shrink: 0;
+    }
+    .risk-legend-label { display: flex; align-items: center; color: var(--text-secondary); }
+    .risk-legend-value { font-weight: 700; color: var(--text-primary); }
+
+    /* Dimensiones medias */
+    .dim-bar { margin-bottom: 18px; }
+    .dim-bar-header { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: 0.83rem; }
+    .dim-bar-header span:first-child { color: var(--text-secondary); }
+    .dim-bar-header span:last-child { font-weight: 700; color: var(--text-primary); }
+    .dim-bar-track { height: 8px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+    .dim-bar-fill { height: 100%; border-radius: 4px; }
+
+    /* Tabla de empresas */
+    .empresa-table { width: 100%; border-collapse: collapse; }
+    .empresa-table thead th { text-align: left; padding: 0 12px 14px; font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border-color); }
+    .empresa-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+    .empresa-table tbody tr:last-child { border-bottom: none; }
+    .empresa-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .empresa-table td { padding: 13px 12px; font-size: 0.87rem; color: var(--text-primary); vertical-align: middle; }
+
+    .mini-bar-wrapper { display: flex; align-items: center; gap: 10px; }
+    .mini-bar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; overflow: hidden; }
+    .mini-bar-fill { height: 100%; border-radius: 3px; }
+
+    .score-pill {
+        display: inline-block; padding: 3px 10px; border-radius: 8px;
+        font-size: 0.75rem; font-weight: 700;
+    }
+    .score-pill.bajo { background: var(--neon-green-dim); color: var(--neon-green); }
+    .score-pill.medio { background: var(--yellow-dim); color: var(--yellow); }
+    .score-pill.alto { background: var(--coral-red-dim); color: var(--coral-red); }
+
+    /* Grid bottom */
+    .informe-grid-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+
+    /* Tabla usuarios detalle */
+    .detail-table { width: 100%; border-collapse: collapse; }
+    .detail-table thead th { text-align: left; padding: 0 10px 12px; font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border-color); }
+    .detail-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .detail-table tbody tr:last-child { border-bottom: none; }
+    .detail-table td { padding: 11px 10px; font-size: 0.84rem; color: var(--text-primary); vertical-align: middle; }
+
+    .export-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        background: var(--card-bg); border: 1px solid var(--border-color);
+        border-radius: 14px; padding: 18px 24px; margin-bottom: 24px;
+    }
+    .export-bar p { color: var(--text-secondary); font-size: 0.88rem; }
+    .export-bar strong { color: var(--text-primary); }
+    .btn-export {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 20px; background: var(--neon-green); border: none;
+        border-radius: 10px; color: #0a0a0a; font-weight: 700; font-size: 0.88rem;
+        cursor: pointer; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-export:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    .chart-h250 { position: relative; height: 250px; }
+
+    @media (max-width: 1100px) { .informe-grid-top { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .informe-grid-bottom { grid-template-columns: 1fr; } }
+</style>
+
+<a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Volver al panel</a>
+
+<div class="informe-header">
+    <h1>Informe Global</h1>
+    <p>Análisis completo del estado de burnout en toda la plataforma.</p>
+</div>
+
+<!-- Barra de exportación -->
+<div class="export-bar">
+    <p>
+        <strong>{{ stats.total_evaluaciones }}</strong> evaluaciones de
+        <strong>{{ stats.total_usuarios }}</strong> usuarios ·
+        Última actualización: hoy
+    </p>
+    <a href="/admin/exportar_csv" class="btn-export">
+        <i class="fas fa-file-csv"></i> Exportar CSV Completo
+    </a>
+</div>
+
+<!-- ─── FILA 1: Distribución + Dimensiones + Tendencia ─── -->
+<div class="informe-grid-top">
+
+    <!-- Distribución por nivel de riesgo -->
+    <div class="informe-card">
+        <div class="informe-card-title"><i class="fas fa-chart-pie"></i> Distribución por Riesgo</div>
+        {% if stats.total_evaluaciones > 0 %}
+        <div class="risk-donut-wrapper">
+            <canvas id="donutChart"></canvas>
+            <div class="risk-legend">
+                <div class="risk-legend-item">
+                    <div class="risk-legend-label">
+                        <div class="risk-legend-dot" style="background:#49f3be;"></div>Bajo riesgo
+                    </div>
+                    <span class="risk-legend-value">{{ riesgo.bajo }}</span>
+                </div>
+                <div class="risk-legend-item">
+                    <div class="risk-legend-label">
+                        <div class="risk-legend-dot" style="background:#f3c949;"></div>Riesgo medio
+                    </div>
+                    <span class="risk-legend-value">{{ riesgo.medio }}</span>
+                </div>
+                <div class="risk-legend-item">
+                    <div class="risk-legend-label">
+                        <div class="risk-legend-dot" style="background:#f34949;"></div>Riesgo alto
+                    </div>
+                    <span class="risk-legend-value">{{ riesgo.alto }}</span>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:30px;color:var(--text-secondary);">Sin datos aún</div>
+        {% endif %}
+    </div>
+
+    <!-- Medias por dimensión -->
+    <div class="informe-card">
+        <div class="informe-card-title"><i class="fas fa-sliders-h"></i> Media por Dimensión</div>
+        {% if medias %}
+        <div class="dim-bar">
+            <div class="dim-bar-header"><span>Agotamiento</span><span>{{ medias.agotamiento }}/5</span></div>
+            <div class="dim-bar-track">
+                <div class="dim-bar-fill" style="width:{{ (medias.agotamiento/5*100)|round }}%;background:{% if medias.agotamiento < 2.5 %}var(--neon-green){% elif medias.agotamiento < 3.5 %}var(--yellow){% else %}var(--coral-red){% endif %};"></div>
+            </div>
+        </div>
+        <div class="dim-bar">
+            <div class="dim-bar-header"><span>Distanciamiento</span><span>{{ medias.distanciamiento }}/5</span></div>
+            <div class="dim-bar-track">
+                <div class="dim-bar-fill" style="width:{{ (medias.distanciamiento/5*100)|round }}%;background:{% if medias.distanciamiento < 2.5 %}var(--neon-green){% elif medias.distanciamiento < 3.5 %}var(--yellow){% else %}var(--coral-red){% endif %};"></div>
+            </div>
+        </div>
+        <div class="dim-bar">
+            <div class="dim-bar-header"><span>Deterioro Cognitivo</span><span>{{ medias.cognitivo }}/5</span></div>
+            <div class="dim-bar-track">
+                <div class="dim-bar-fill" style="width:{{ (medias.cognitivo/5*100)|round }}%;background:{% if medias.cognitivo < 2.5 %}var(--neon-green){% elif medias.cognitivo < 3.5 %}var(--yellow){% else %}var(--coral-red){% endif %};"></div>
+            </div>
+        </div>
+        <div class="dim-bar">
+            <div class="dim-bar-header"><span>Deterioro Emocional</span><span>{{ medias.emocional }}/5</span></div>
+            <div class="dim-bar-track">
+                <div class="dim-bar-fill" style="width:{{ (medias.emocional/5*100)|round }}%;background:{% if medias.emocional < 2.5 %}var(--neon-green){% elif medias.emocional < 3.5 %}var(--yellow){% else %}var(--coral-red){% endif %};"></div>
+            </div>
+        </div>
+        <div class="dim-bar" style="margin-bottom:0;">
+            <div class="dim-bar-header"><span style="font-weight:700;color:var(--text-primary);">Media Global</span><span style="font-size:1rem;">{{ medias.global }}/5</span></div>
+            <div class="dim-bar-track" style="height:10px;">
+                <div class="dim-bar-fill" style="width:{{ (medias.global/5*100)|round }}%;background:linear-gradient(90deg,var(--neon-green),#4facfe);"></div>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:30px;color:var(--text-secondary);">Sin datos aún</div>
+        {% endif %}
+    </div>
+
+    <!-- Radar global -->
+    <div class="informe-card">
+        <div class="informe-card-title"><i class="fas fa-radar"></i> Radar Global</div>
+        {% if medias %}
+        <div style="position:relative;height:210px;">
+            <canvas id="radarGlobal"></canvas>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:30px;color:var(--text-secondary);">Sin datos aún</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ─── EMPRESAS ─── -->
+<div class="informe-card" style="margin-bottom:20px;">
+    <div class="informe-card-title"><i class="fas fa-building"></i> Rendimiento por Empresa</div>
+    {% if empresas_stats %}
+    <table class="empresa-table">
+        <thead>
+            <tr>
+                <th>Empresa</th>
+                <th>Empleados</th>
+                <th>Evaluaciones</th>
+                <th>Media Global</th>
+                <th>Nivel</th>
+                <th>Agotamiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in empresas_stats %}
+            <tr>
+                <td style="font-weight:600;">{{ e.nombre }}</td>
+                <td style="color:var(--text-secondary);">{{ e.empleados }}</td>
+                <td style="color:var(--text-secondary);">{{ e.evaluaciones }}</td>
+                <td>
+                    <div class="mini-bar-wrapper">
+                        <div class="mini-bar-track">
+                            <div class="mini-bar-fill" style="width:{{ (e.media_global/5*100)|round if e.media_global else 0 }}%;background:{% if e.media_global and e.media_global < 2.5 %}var(--neon-green){% elif e.media_global and e.media_global < 3.5 %}var(--yellow){% else %}var(--coral-red){% endif %};"></div>
+                        </div>
+                        <span style="font-size:0.82rem;font-weight:700;">{{ e.media_global or '—' }}</span>
+                    </div>
+                </td>
+                <td>
+                    {% if e.media_global %}
+                        {% if e.media_global < 2.5 %}<span class="score-pill bajo">Bajo</span>
+                        {% elif e.media_global < 3.5 %}<span class="score-pill medio">Medio</span>
+                        {% else %}<span class="score-pill alto">Alto</span>{% endif %}
+                    {% else %}<span style="color:var(--text-secondary);">—</span>{% endif %}
+                </td>
+                <td>
+                    <div class="mini-bar-wrapper">
+                        <div class="mini-bar-track">
+                            <div class="mini-bar-fill" style="width:{{ (e.media_agotamiento/5*100)|round if e.media_agotamiento else 0 }}%;background:var(--coral-red);"></div>
+                        </div>
+                        <span style="font-size:0.82rem;color:var(--text-secondary);">{{ e.media_agotamiento or '—' }}</span>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:30px;color:var(--text-secondary);">No hay datos de empresas aún.</div>
+    {% endif %}
+</div>
+
+<!-- ─── FILA BOTTOM ─── -->
+<div class="informe-grid-bottom">
+
+    <!-- Usuarios con mayor puntuación -->
+    <div class="informe-card">
+        <div class="informe-card-title"><i class="fas fa-exclamation-circle" style="color:var(--coral-red)!important;"></i> Top Usuarios en Riesgo</div>
+        {% if top_riesgo %}
+        <table class="detail-table">
+            <thead>
+                <tr><th>Usuario</th><th>Puntuación</th><th>Empresa</th></tr>
+            </thead>
+            <tbody>
+                {% for u in top_riesgo %}
+                <tr>
+                    <td style="font-weight:600;">{{ u.nombre }} {{ u.apellidos or '' }}</td>
+                    <td>
+                        <span class="score-pill {% if u.puntuacion_total >= 3.5 %}alto{% elif u.puntuacion_total >= 2.5 %}medio{% else %}bajo{% endif %}">
+                            {{ u.puntuacion_total }}/5
+                        </span>
+                    </td>
+                    <td style="color:var(--text-secondary);font-size:0.8rem;">{{ u.empresa_nombre or 'Personal' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align:center;padding:30px;color:var(--text-secondary);">Sin datos</div>
+        {% endif %}
+    </div>
+
+    <!-- Evolución mensual -->
+    <div class="informe-card">
+        <div class="informe-card-title"><i class="fas fa-chart-area"></i> Evolución de la Media Global</div>
+        <div class="chart-h250"><canvas id="evolucionChart"></canvas></div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ─── DONUT ───
+    {% if stats.total_evaluaciones > 0 %}
+    new Chart(document.getElementById('donutChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Bajo', 'Medio', 'Alto'],
+            datasets: [{
+                data: [{{ riesgo.bajo }}, {{ riesgo.medio }}, {{ riesgo.alto }}],
+                backgroundColor: ['rgba(73,243,190,0.8)', 'rgba(243,201,73,0.8)', 'rgba(243,73,73,0.8)'],
+                borderColor: ['#49f3be','#f3c949','#f34949'],
+                borderWidth: 2, hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: true, cutout: '65%',
+            plugins: { legend: { display: false } }
+        }
+    });
+    {% endif %}
+
+    // ─── RADAR GLOBAL ───
+    {% if medias %}
+    new Chart(document.getElementById('radarGlobal').getContext('2d'), {
+        type: 'radar',
+        data: {
+            labels: ['Agotamiento', 'Distanciamiento', 'Cognitivo', 'Emocional'],
+            datasets: [{
+                label: 'Media global',
+                data: [{{ medias.agotamiento }}, {{ medias.distanciamiento }}, {{ medias.cognitivo }}, {{ medias.emocional }}],
+                backgroundColor: 'rgba(73,243,190,0.15)',
+                borderColor: '#49f3be',
+                pointBackgroundColor: '#49f3be',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                r: {
+                    min: 0, max: 5,
+                    angleLines: { color: 'rgba(255,255,255,0.08)' },
+                    grid: { color: 'rgba(255,255,255,0.08)' },
+                    pointLabels: { color: '#888', font: { size: 11 } },
+                    ticks: { display: false }
+                }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+    {% endif %}
+
+    // ─── EVOLUCIÓN MENSUAL ───
+    const evData = {{ evolucion_mensual | tojson }};
+    new Chart(document.getElementById('evolucionChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: evData.map(d => d.mes),
+            datasets: [{
+                label: 'Media global',
+                data: evData.map(d => d.media),
+                borderColor: '#49f3be',
+                backgroundColor: 'rgba(73,243,190,0.1)',
+                fill: true, tension: 0.4, borderWidth: 2,
+                pointBackgroundColor: '#49f3be', pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                y: { min: 0, max: 5, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#888', font: { size: 11 } } },
+                x: { grid: { display: false }, ticks: { color: '#888', font: { size: 11 } } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+});
+</script>
+
+{% endblock %}

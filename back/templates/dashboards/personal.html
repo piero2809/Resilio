@@ -55,10 +55,8 @@
                 <span>{{ evaluacion.dim_agotamiento }}/5</span>
             </div>
             <div class="progress-bg">
-                <div class="progress-fill 
-                        {% if evaluacion.dim_agotamiento < 2.5 %}green
-                        {% elif evaluacion.dim_agotamiento < 3.5 %}yellow
-                        {% else %}red{% endif %}" style="width: {{ (evaluacion.dim_agotamiento / 5 * 100) }}%;">
+                <div class="progress-fill {% if evaluacion.dim_agotamiento < 2.5 %}green{% elif evaluacion.dim_agotamiento < 3.5 %}yellow{% else %}red{% endif %}"
+                    style="width: {{ (evaluacion.dim_agotamiento / 5 * 100)|int }}%;">
                 </div>
             </div>
         </div>
@@ -69,10 +67,8 @@
                 <span>{{ evaluacion.dim_distanciamiento }}/5</span>
             </div>
             <div class="progress-bg">
-                <div class="progress-fill 
-                        {% if evaluacion.dim_distanciamiento < 2.5 %}green
-                        {% elif evaluacion.dim_distanciamiento < 3.5 %}yellow
-                        {% else %}red{% endif %}" style="width: {{ (evaluacion.dim_distanciamiento / 5 * 100) }}%;">
+                <div class="progress-fill {% if evaluacion.dim_distanciamiento < 2.5 %}green{% elif evaluacion.dim_distanciamiento < 3.5 %}yellow{% else %}red{% endif %}"
+                    style="width: {{ (evaluacion.dim_distanciamiento / 5 * 100)|int }}%;">
                 </div>
             </div>
         </div>
@@ -83,10 +79,8 @@
                 <span>{{ evaluacion.dim_cognitivo }}/5</span>
             </div>
             <div class="progress-bg">
-                <div class="progress-fill 
-                        {% if evaluacion.dim_cognitivo < 2.5 %}green
-                        {% elif evaluacion.dim_cognitivo < 3.5 %}yellow
-                        {% else %}red{% endif %}" style="width: {{ (evaluacion.dim_cognitivo / 5 * 100) }}%;">
+                <div class="progress-fill {% if evaluacion.dim_cognitivo < 2.5 %}green{% elif evaluacion.dim_cognitivo < 3.5 %}yellow{% else %}red{% endif %}"
+                    style="width: {{ (evaluacion.dim_cognitivo / 5 * 100)|int }}%;">
                 </div>
             </div>
         </div>
@@ -98,7 +92,7 @@
             </div>
             <div class="progress-bg">
                 <div class="progress-fill {% if evaluacion.dim_emocional < 2.5 %}green{% elif evaluacion.dim_emocional < 3.5 %}yellow{% else %}red{% endif %}"
-                    style="width: {{ (evaluacion.dim_emocional / 5 * 100) }}%;">
+                    style="width: {{ (evaluacion.dim_emocional / 5 * 100)|int }}%;">
                 </div>
             </div>
         </div>
@@ -128,6 +122,13 @@
 
 </div>
 {% endif %}
+
+<div class="btn-action">
+    <a href="/test" class="btn-secondary">
+        <i class="fas fa-redo"></i>
+        Repetir Evaluacion
+    </a>
+</div>
 
 <style>
     .results-section {
@@ -220,13 +221,6 @@
         }
     }
 </style>
-
-<div class="btn-action">
-    <a href="/test" class="btn-secondary">
-        <i class="fas fa-redo"></i>
-        Repetir Evaluacion
-    </a>
-</div>
 
 {% else %}
 <div class="result-card" style="text-align: center; padding: 60px 40px;">
