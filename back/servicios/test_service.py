@@ -149,7 +149,7 @@ def calcular_y_guardar_bat12(user_id, form_data, db):
         }
         dimension_maxima = max(dimensiones, key=dimensiones.get)
 
-        # Generar consejos con IA (si está configurada)
+        # Generar consejos con IA 
         consejos = "No se han generado consejos. Configura la API de Gemini para obtener recomendaciones personalizadas."
         try:
             api_key = os.environ.get("GEMINI_API_KEY")
@@ -189,7 +189,7 @@ def calcular_y_guardar_bat12(user_id, form_data, db):
         # =============================================
         # 7. GUARDAR AUDITORÍA (RESPUESTAS INDIVIDUALES)
         # =============================================
-        # Guardamos cada respuesta por separado (opcional pero útil)
+        # Guardamos cada respuesta por separado 
         # Esto permite ver las respuestas exactas después
 
         query_resp = "INSERT INTO respuestas_evaluacion (evaluacion_id, pregunta_id, valor) VALUES (%s, %s, %s)"
