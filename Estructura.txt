@@ -1,0 +1,15 @@
+back/
+├── app.py                    ← Núcleo: rutas y lógica principal
+├── conexion/
+│   └── conexion_bbdd.py      ← Capa de acceso a base de datos
+├── servicios/
+│   ├── test_service.py       ← Lógica del test BAT-12
+│   └── ia_service.py         ← Integración con Google Gemini
+└── templates/
+    ├── dashboards/
+    │   ├── admin.html
+    │   ├── hr.html
+    │   ├── empleado.html
+    │   └── personal.html
+    ├── test.html
+    └── historial.html

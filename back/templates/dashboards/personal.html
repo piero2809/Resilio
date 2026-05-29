@@ -1,14 +1,18 @@
 {% extends "layout.html" %}
+<!-- Esta plantilla usa la estructura general de layout.html -->
 
 {% block content %}
+<!-- Contenido principal de la página -->
 <div class="welcome-section" style="margin-bottom: 40px;">
     <h1 style="color: var(--text-primary); margin-bottom: 10px; font-size: 1.8rem;">Tu Espacio de Bienestar</h1>
     <p style="color: var(--text-secondary);">Monitoriza tus niveles de energia y estres laboral.</p>
 </div>
 
 {% if evaluacion %}
+<!-- Si hay una evaluación disponible, mostrar los resultados -->
 
 <div class="stats-grid">
+    <!-- Tarjetas con las métricas principales de la evaluación -->
     <div class="stat-card">
         <div class="stat-icon green">
             <i class="fas fa-brain"></i>
@@ -45,11 +49,13 @@
 
 <div class="results-section">
 
+    <!-- Lista de barras de progreso que muestran cada dimensión sobre 5 -->
     <div class="result-card">
         <h2><i class="fas fa-chart-pie" style="margin-right: 10px; color: var(--neon-green);"></i>Resumen de Dimensiones
         </h2>
 
         <div class="dimension-bar">
+            <!-- Cada barra muestra cuánto de 5 tiene cada dimensión -->
             <div class="label">
                 <span>Agotamiento</span>
                 <span>{{ evaluacion.dim_agotamiento }}/5</span>
@@ -104,6 +110,7 @@
     </div>
 
     <div class="result-card">
+        <!-- Gráfico radar que compara las 4 dimensiones -->
         <h2><i class="fas fa-radar" style="margin-right: 10px; color: var(--neon-green);"></i>Visualizacion</h2>
         <canvas id="burnoutChart" style="max-height: 300px;"></canvas>
     </div>
@@ -124,6 +131,7 @@
 {% endif %}
 
 <div class="btn-action">
+    <!-- Botón para repetir la evaluación desde cero -->
     <a href="/test" class="btn-secondary">
         <i class="fas fa-redo"></i>
         Repetir Evaluacion
@@ -223,6 +231,7 @@
 </style>
 
 {% else %}
+<!-- No hay evaluación: mostrar mensaje para empezar el test -->
 <div class="result-card" style="text-align: center; padding: 60px 40px;">
     <div
         style="width: 80px; height: 80px; background: var(--neon-green-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
@@ -244,6 +253,7 @@
 {% if evaluacion %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Preparar datos para el gráfico de radar
         const ctx = document.getElementById('burnoutChart').getContext('2d');
 
         // El replace evita errores si Python manda los decimales con coma en lugar de punto
@@ -252,6 +262,7 @@
         const dataCognitivo = parseFloat("{{ evaluacion.dim_cognitivo }}".replace(',', '.'));
         const dataEmocional = parseFloat("{{ evaluacion.dim_emocional }}".replace(',', '.'));
 
+        // Crear el gráfico radar con las cuatro dimensiones de burnout
         new Chart(ctx, {
             type: 'radar',
             data: {
