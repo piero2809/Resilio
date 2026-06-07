@@ -25,9 +25,11 @@ deberían estar en variables de entorno, NO hardcodeadas.
 """
 
 # Importamos la librería de MySQL para Python
+import os 
 import mysql.connector
 from mysql.connector import Error
-
+from dotenv import load_dotenv
+load_dotenv()  # Carga las variables de entorno desde el archivo .env
 
 def obtener_conexion():
     """
@@ -57,10 +59,10 @@ def obtener_conexion():
         # mysql.connector.connect() crea una conexión al servidor
 
         conexion = mysql.connector.connect(
-            host="localhost",  # Servidor MySQL (aquí es local)
-            user="resilio",  # Usuario de la base de datos
-            password="Resilio123$",  # Contraseña del usuario
-            database="resilio_db",  # Nombre de la base de datos
+            host=os.getenv("DB_HOST"),  # Servidor MySQL (aquí es local)
+            user=os.getenv("DB_USER"),  # Usuario de la base de datos
+            password=os.getenv("DB_PASSWORD"),  # Contraseña del usuario
+            database=os.getenv("DB_NAME"),  # Nombre de la base de datos
         )
 
         # Verificar que la conexión fue exitosa

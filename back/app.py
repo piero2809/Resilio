@@ -16,7 +16,7 @@ from servicios.test_service import calcular_y_guardar_bat12
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
-app.secret_key = "123123123"
+app.secret_key = os.getenv("SECRET_KEY")
 
 
 # ─── UTILIDADES ────────────────────────────────────────────────────────────────
@@ -897,4 +897,5 @@ def procesar_test():
 # ─── INICIO ────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    debug = os.getenv("FLASK_DEBUG", "False").lower() == "true"
+    app.run(debug=debug)
