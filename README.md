@@ -20,4 +20,5 @@ Resilio es una aplicación web diseñada para ayudar a detectar el síndrome de 
 - `requirements.txt`: Lista de dependencias del proyecto.
 
 ## DEMO DE LA APP
- Resilio: resilio-production.up.railway.app
+ [Prueba la Demo de Resilio!](resilio-production.up.railway.app)
+ 
