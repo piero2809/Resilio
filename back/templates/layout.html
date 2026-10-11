@@ -8,7 +8,36 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+    <style>
+        .language-switcher {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 20px;
+        }
+
+        .language-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .language-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--neon-green);
+        }
+
+        .language-btn.active {
+            background: rgba(73, 243, 190, 0.1);
+            color: var(--neon-green);
+            border-color: var(--neon-green);
+        }
+    </style>
     <script>
         // Aplicar tema ANTES de que cargue el body para evitar parpadeo
         (function() {
@@ -65,12 +94,20 @@
             <div>
                 <span class="header-title"><span data-i18n="hola">Hola</span>, <strong>{{ session['nombre'] }}</strong></span>
             </div>
-            {% if session['nombre_empresa'] %}
-            <span class="badge">
-                <i class="fas fa-building" style="margin-right: 8px;"></i>
-                {{ session['nombre_empresa'] }} | {{ session['nombre_dept'] }}
-            </span>
-            {% endif %}
+
+            <div style="display: flex; align-items: center;">
+                <div class="language-switcher">
+                    <button class="language-btn" data-lang="es" onclick="setLanguage('es')">ES</button>
+                    <button class="language-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+                    <button class="language-btn" data-lang="ca" onclick="setLanguage('ca')">CA</button>
+                </div>
+                {% if session['nombre_empresa'] %}
+                <span class="badge">
+                    <i class="fas fa-building" style="margin-right: 8px;"></i>
+                    {{ session['nombre_empresa'] }} | {{ session['nombre_dept'] }}
+                </span>
+                {% endif %}
+            </div>
         </header>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -205,6 +242,14 @@
                 }
             });
             document.documentElement.lang = lang;
+
+            // Update language switcher buttons
+            document.querySelectorAll('.language-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === lang) {
+                    btn.classList.add('active');
+                }
+            });
         }
         
         // Funcion para cambiar el tema
