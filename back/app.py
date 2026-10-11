@@ -14,10 +14,27 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from conexion.conexion_bbdd import obtener_conexion
 from servicios.test_service import calcular_y_guardar_bat12
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
+if not app.secret_key:
+    import secrets
+    app.secret_key = secrets.token_hex(16)
+
+# ─── MAIL CONFIGURATION ─────────────────────────────────────────────────────────
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 't']
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False').lower() in ['true', '1', 't']
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', os.getenv('MAIL_USERNAME'))
+
+mail = Mail(app)
+s = URLSafeTimedSerializer(app.secret_key)
 
 # ─── UTILIDADES ────────────────────────────────────────────────────────────────
 
@@ -166,6 +183,114 @@ def register():
                 db.close()
 
     return render_template("register.html")
+
+
+# ─── FORGOT PASSWORD ───────────────────────────────────────────────────────────
+
+@app.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form["email"]
+
+        db = obtener_conexion()
+        if not db:
+            flash("Error de conexión.", "error")
+            return redirect(url_for("forgot_password"))
+
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT id, nombre, email FROM usuarios WHERE email = %s", (email,))
+        usuario = cursor.fetchone()
+        cursor.close()
+        db.close()
+
+        if usuario:
+            # Include password hash in the salt to invalidate tokens after password change
+            token = s.dumps(email, salt=f"email-confirm-{usuario.get('password')}")
+            reset_url = url_for('reset_password', token=token, _external=True)
+
+            msg = Message('Restablecer Contraseña - Resilio', recipients=[email])
+            msg.body = f'''Hola {usuario['nombre']},
+
+Para restablecer tu contraseña, visita el siguiente enlace:
+{reset_url}
+
+Si no realizaste esta solicitud, simplemente ignora este correo.
+
+Saludos,
+El equipo de Resilio
+'''
+            try:
+                mail.send(msg)
+            except Exception as e:
+                print(f"Error al enviar el correo: {e}")
+
+        # Prevent email enumeration by always showing the same success message
+        flash("Si el correo existe en nuestro sistema, recibirás un enlace de recuperación.", "success")
+
+        return redirect(url_for("login"))
+
+    return render_template("forgot_password.html")
+
+
+@app.route("/reset_password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    # Determine which user this token corresponds to
+    try:
+        # Load the email from the payload
+        import base64
+        import json
+        payload = token.split('.')[0]
+        # Pad if necessary
+        padded_payload = payload + '=' * (-len(payload) % 4)
+        email = json.loads(base64.urlsafe_b64decode(padded_payload).decode('utf-8'))
+    except Exception:
+        flash("El enlace es inválido o ha expirado.", "error")
+        return redirect(url_for("forgot_password"))
+
+    # Now get the user from DB to verify the full token
+    db = obtener_conexion()
+    if not db:
+        flash("Error de conexión.", "error")
+        return redirect(url_for("forgot_password"))
+
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT password FROM usuarios WHERE email = %s", (email,))
+    usuario = cursor.fetchone()
+
+    if not usuario:
+        cursor.close()
+        db.close()
+        flash("El enlace es inválido.", "error")
+        return redirect(url_for("forgot_password"))
+
+    try:
+        # Verify the token with the correct salt
+        s.loads(token, salt=f"email-confirm-{usuario.get('password')}", max_age=3600)
+    except Exception:
+        cursor.close()
+        db.close()
+        flash("El enlace es inválido o ha expirado.", "error")
+        return redirect(url_for("forgot_password"))
+
+    if request.method == "POST":
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+
+        if password != confirm_password:
+            flash("Las contraseñas no coinciden.", "error")
+            return render_template("reset_password.html", token=token)
+
+        hashed_password = generate_password_hash(password)
+
+        cursor.execute("UPDATE usuarios SET password = %s WHERE email = %s", (hashed_password, email))
+        db.commit()
+        cursor.close()
+        db.close()
+
+        flash("Tu contraseña ha sido actualizada exitosamente.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("reset_password.html", token=token)
 
 
 # ─── DASHBOARD ─────────────────────────────────────────────────────────────────

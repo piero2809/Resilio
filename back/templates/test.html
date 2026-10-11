@@ -262,8 +262,8 @@
                     <label class="option-label">
                         <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ i }}" required>
                         <span class="option-circle">{{ i }}</span>
-                        <span class="option-text">
-                            {% if i == 1 %}Nunca{% elif i == 2 %}Raras{% elif i == 3 %}A veces{% elif i == 4 %}Often{% else %}Siempre{% endif %}
+                        <span class="option-text" data-i18n="{% if i == 1 %}nunca{% elif i == 2 %}raramente{% elif i == 3 %}aVeces{% elif i == 4 %}aMenudo{% else %}siempre{% endif %}">
+                            {% if i == 1 %}Nunca{% elif i == 2 %}Raramente{% elif i == 3 %}A veces{% elif i == 4 %}A menudo{% else %}Siempre{% endif %}
                         </span>
                     </label>
                     {% endfor %}
@@ -297,9 +297,9 @@
                 pregunta: "Pregunta",
                 de: "de",
                 nunca: "Nunca",
-                nuncaRaras: "Raras",
+                raramente: "Raramente",
                 aVeces: "A veces",
-                aVecesOften: "A veces",
+                aMenudo: "A menudo",
                 siempre: "Siempre"
             },
             en: {
@@ -312,25 +312,25 @@
                 pregunta: "Question",
                 de: "of",
                 nunca: "Never",
-                nuncaRaras: "Rarely",
+                raramente: "Rarely",
                 aVeces: "Sometimes",
-                aVecesOften: "Often",
+                aMenudo: "Often",
                 siempre: "Always"
             },
             ca: {
                 testBat12: "Test BAT-12",
                 evaluacionAgotamiento: "Avaluació d'Esgotament Laboral",
                 comoResponder: "Com respondre?",
-                instruccionsTest: "Respon a cada pregunta pensant com t'has sentit les últimes setmanes. L'escala va de 1 (Mai) a 5 (Sempre). No hi ha respostes correctes o incorrectes.",
+                instruccionesTest: "Respon a cada pregunta pensant com t'has sentit les últimes setmanes. L'escala va de 1 (Mai) a 5 (Sempre). No hi ha respostes correctes o incorrectes.",
                 progreso: "Progrés",
                 enviarRespuestas: "Enviar Respostes",
                 pregunta: "Pregunta",
                 de: "de",
                 nunca: "Mai",
-                nuncaRaras: "Rares",
+                raramente: "Rarament",
                 aVeces: "A vegades",
-                aVecesOften: "A vegades",
-                sempre: "Sempre"
+                aMenudo: "Sovint",
+                siempre: "Sempre"
             }
         };
         
@@ -349,14 +349,6 @@
             });
             document.documentElement.lang = lang;
             
-            // Traducir opciones de respuesta (valores dinamicos)
-            const optionTexts = document.querySelectorAll('.option-text');
-            const options = ['nunca', 'nuncaRaras', 'aVeces', 'aVecesOften', 'siempre'];
-            optionTexts.forEach((el, idx) => {
-                if (options[idx] && translations[lang][options[idx]]) {
-                    el.textContent = translations[lang][options[idx]];
-                }
-            });
             
             // Traducir numeros de pregunta
             const questionNumbers = document.querySelectorAll('.question-number');
