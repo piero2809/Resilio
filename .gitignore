@@ -2,3 +2,4 @@
 .env
 API-KEY.env
 CLAUDE.md
+.claude
